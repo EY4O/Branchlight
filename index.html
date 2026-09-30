@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Branchlight — Ren’Py Branch Viewer</title>
+  <meta name="description" content="Explore the choices and connections in your Ren’Py scripts, entirely on your Mac.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232c5548'/%3E%3Cpath d='M16 25V15M16 15L7 7M16 15L25 7' stroke='%23f6f4ed' stroke-width='3' fill='none'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">⑂</span><div><h1>Branchlight</h1><span>REN’PY BRANCH VIEWER</span></div></div>
+    <span class="local"><span></span> Local · files stay in your browser</span>
+    <button class="primary" id="open">＋ Open .rpy files</button><input id="files" type="file" accept=".rpy" multiple hidden>
+  </header>
+  <main>
+    <aside class="sidebar">
+      <div class="sidebar-head"><span class="eyebrow">YOUR STORY</span><span id="mode" class="badge">Example</span></div>
+      <h2 id="project">The lantern path</h2>
+      <p class="muted" id="file-summary">A small story to explore.</p>
+      <div class="stats"><div><strong id="label-count">0</strong><span>labels</span></div><div><strong id="choice-count">0</strong><span>choices</span></div><div><strong id="file-count">0</strong><span>files</span></div></div>
+      <label class="field-label" for="entry">Explore from</label>
+      <select id="entry"><option value="">All labels</option></select>
+      <label class="check"><input type="checkbox" id="dialogue"> Show dialogue & actions</label>
+      <div class="rule"></div>
+      <span class="eyebrow">MAP KEY</span>
+      <ul class="legend"><li><i class="dot label"></i>Label / scene</li><li><i class="dot choice"></i>Player choice</li><li><i class="dot condition"></i>Condition / loop</li><li><i class="dot call"></i>Call to a label</li><li><i class="dot external"></i>Unresolved destination</li></ul>
+      <details id="notes"><summary>Analysis notes <span id="warning-count">0</span></summary><div id="warnings"></div></details>
+      <div class="sidebar-bottom"><p>Drop one or more <b>.rpy</b> files anywhere to map your story.</p><button id="example" class="text-button">Load example story ↗</button><p class="footnote">Static map · conditions are shown, not evaluated. Python and screen navigation may add other paths.</p></div>
+    </aside>
+    <section class="workspace" aria-label="Story flowchart">
+      <div class="canvas-heading"><div><span class="eyebrow">STORY MAP</span><h2 id="map-title">All branches</h2></div><span id="visible-count" class="muted"></span></div>
+      <div id="canvas" tabindex="0" aria-label="Flowchart. Drag to pan, scroll to zoom. Use arrow keys to pan and plus or minus to zoom.">
+        <svg id="graph" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="Ren’Py branch diagram"><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8b9e94"/></marker></defs><g id="viewport"></g></svg>
+        <div id="empty" hidden><h2>No story labels found</h2><p>Open a story file containing <code>label</code> and <code>menu</code> statements.</p></div>
+      </div>
+      <div class="canvas-footer"><span>Drag to pan <b>·</b> Scroll to zoom <b>·</b> Click a node for source</span><div class="zoom-controls"><button id="zoom-out" aria-label="Zoom out">−</button><span id="zoom">100%</span><button id="zoom-in" aria-label="Zoom in">＋</button><button id="fit">Fit map</button></div></div>
+      <div id="message" role="status" hidden></div>
+    </section>
+    <aside id="inspector" hidden aria-label="Selected node source"><div class="inspector-top"><span class="eyebrow">SOURCE DETAIL</span><button id="close-detail" aria-label="Close source detail">×</button></div><span id="detail-type" class="badge"></span><h2 id="detail-title"></h2><p id="detail-location" class="muted"></p><p id="detail-note"></p><div id="connections"></div><pre id="source" tabindex="0"></pre></aside>
+  </main>
+  <div id="drop-overlay" hidden>Drop your .rpy files here<span>Read locally. Nothing is uploaded.</span></div>
+  <script src="parser.js"></script><script src="app.js"></script>
+</body>
+</html>
