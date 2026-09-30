@@ -2,6 +2,8 @@
 
 A small, private Ren’Py branch viewer. Open one or more `.rpy` files and explore their choices, conditions, label connections, and source lines.
 
+**[Open Branchlight](https://ey4o.github.io/Branchlight/)** · [Source on GitHub](https://github.com/EY4O/Branchlight)
+
 **No installation, build step, account, backend, or network connection is needed.** The app is plain HTML, CSS, and JavaScript with no third-party runtime dependencies. Scripts are read into browser memory; they are never executed, uploaded, or saved by the app. Reloading clears them. A web host will still receive ordinary requests for the app's four public assets.
 
 ## Run locally
@@ -61,7 +63,7 @@ This directory is ready to become its own repository. Use the **contents of this
 
 The workflow tests the parser and stages only `index.html`, `style.css`, `parser.js`, and `app.js` for deployment. It does not publish story files, tests, or local screenshots. Relative asset paths support GitHub Pages project subdirectories.
 
-See [GitHub's custom Pages workflow documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages). The workflow is provided but has not been run on GitHub for this local copy.
+See [GitHub's custom Pages workflow documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages). Deployment results appear in the repository's Actions tab.
 
 ## Other static hosts
 
