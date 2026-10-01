@@ -9,22 +9,23 @@
     const dark = preference === 'dark' || (preference === 'system' && media.matches);
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
     const color = document.querySelector('meta[name="theme-color"]');
-    if (color) color.content = dark ? '#1c2721' : '#fbfcf8';
+    if (color) color.content = dark ? '#111a15' : '#e8ebe4';
   }
+  function sync() { for (const input of document.querySelectorAll('input[name="appearance"]')) input.checked = input.value === preference; }
   apply();
   media.addEventListener('change', apply);
   document.addEventListener('DOMContentLoaded', () => {
-    const select = document.getElementById('appearance');
-    select.value = preference;
-    select.addEventListener('change', () => {
-      preference = allowed.includes(select.value) ? select.value : 'system';
+    sync();
+    for (const input of document.querySelectorAll('input[name="appearance"]')) input.addEventListener('change', () => {
+      if (!input.checked) return;
+      preference = allowed.includes(input.value) ? input.value : 'system';
       try { localStorage.setItem(key, preference); } catch (_) { /* Keep the in-memory choice. */ }
       apply();
     });
     window.addEventListener('storage', event => {
       if (event.key !== key && event.key !== null) return;
       preference = allowed.includes(event.newValue) ? event.newValue : 'system';
-      select.value = preference; apply();
+      sync(); apply();
     });
   });
 })();

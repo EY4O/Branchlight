@@ -5,13 +5,14 @@
   let bundle, selected, current, zoom = 1, mapWidth = 800, mapHeight = 600;
   function element(tag, className, text) { const e = document.createElement(tag); if (className) e.className = className; if (text !== undefined) e.textContent = text; return e; }
   function svg(tag, attrs, text) { const e = document.createElementNS(NS, tag); for (const [key, value] of Object.entries(attrs)) e.setAttribute(key, value); if (text !== undefined) e.textContent = text; return e; }
-  function close() { $('project-workspace').hidden = true; $('script-workspace').hidden = false; }
+  // Script files and bundles coexist; loading scripts keeps the bundle available on its own tab.
+  function close() {}
   function open(value) {
     // Validate completely before changing the currently visible project.
     BranchlightBundle.validate(value); bundle = value; selected = null;
     $('bundle-title').textContent = bundle.project.title; $('bundle-description').textContent = bundle.project.description || 'Exported event map and checkpoints.';
     $('bundle-campaign').replaceChildren(...bundle.campaigns.map(c => new Option(c.title, c.id)));
-    $('project-workspace').hidden = false; $('script-workspace').hidden = true; $('return-project').hidden = false;
+    $('tab-checkpoints').hidden = false; window.Branchlight?.showView('checkpoints');
     const metadata = [bundle.project.revision && 'Revision ' + bundle.project.revision, bundle.project.exportedAt && 'Exported ' + new Date(bundle.project.exportedAt).toLocaleString()].filter(Boolean);
     $('bundle-provenance').textContent = metadata.join(' · ') || 'No revision or export time provided.';
     campaignChanged();
@@ -27,7 +28,7 @@
     current = BranchlightBundle.view(bundle, $('bundle-campaign').value, $('bundle-checkpoint').value, $('bundle-group').value);
     const checkpoint = current.checkpoint;
     $('checkpoint-kind').textContent = checkpoint.kind === 'scenario' ? 'Hypothetical scenario' : 'Recorded checkpoint';
-    $('checkpoint-kind').className = 'badge ' + checkpoint.kind;
+    $('checkpoint-kind').className = 'tag ' + checkpoint.kind;
     $('checkpoint-description').textContent = checkpoint.description || '';
     $('checkpoint-summary').replaceChildren();
     for (const item of checkpoint.summary) $('checkpoint-summary').append(element('dt', '', item.label), element('dd', '', item.value));
@@ -44,7 +45,7 @@
   }
   function draw() {
     const map = $('bundle-map'); map.replaceChildren();
-    const defs = svg('defs', {}), marker = svg('marker', { id: 'bundle-arrow', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse' }); marker.append(svg('path', { d: 'M0 0 L10 5 L0 10 z', fill: '#9ba99c' })); defs.append(marker); map.append(defs);
+    const defs = svg('defs', {}), marker = svg('marker', { id: 'bundle-arrow', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse' }); marker.append(svg('path', { d: 'M0 1.5L9 5 0 8.5z' })); defs.append(marker); map.append(defs);
     const groups = [...new Set(current.events.map(e => e.group))], positions = new Map();
     const largest = Math.max(1, ...groups.map(group => current.events.filter(e => e.group === group).length));
     mapWidth = Math.max(290, groups.length * 290); mapHeight = largest * 132 + 75;
@@ -63,10 +64,9 @@
     for (const event of current.events) {
       const pos = positions.get(event.id), assessment = current.checkpoint.events[event.id];
       const node = svg('g', { transform: `translate(${pos.x},${pos.y})`, class: `bundle-node ${assessment.status}${selected === event.id ? ' selected' : ''}`, role: 'button', tabindex: 0, 'aria-label': `${event.title} — ${statusNames[assessment.status]}`, 'aria-pressed': selected === event.id, 'data-event': event.id });
-      node.append(svg('rect', { width: 240, height: 96, rx: 9 }));
-      node.append(svg('text', { x: 14, y: 22, class: 'bundle-node-status' }, statusNames[assessment.status].toUpperCase()));
-      lines(event.title).forEach((line, i) => node.append(svg('text', { x: 14, y: 45 + i * 17, class: 'bundle-node-title' }, line)));
-      node.append(svg('text', { x: 14, y: 83, class: 'bundle-node-id' }, event.id.length > 30 ? event.id.slice(0, 29) + '…' : event.id));
+      node.append(svg('rect', { width: 240, height: 96, rx: 3 }));
+      lines(event.title).forEach((line, i) => node.append(svg('text', { x: 14, y: 28 + i * 18, class: 'bundle-node-title' }, line)));
+      const foot = svg('text', { x: 14, y: 80 }); foot.append(svg('tspan', { class: 'bundle-node-status' }, statusNames[assessment.status]), svg('tspan', { class: 'bundle-node-id' }, ' · ' + (event.id.length > 24 ? event.id.slice(0, 23) + '…' : event.id))); node.append(foot);
       node.append(svg('title', {}, event.title));
       function select() { selected = event.id; for (const n of map.querySelectorAll('[data-event]')) { const active = n.dataset.event === selected; n.classList.toggle('selected', active); n.setAttribute('aria-pressed', active); } details(); }
       node.addEventListener('click', select); node.addEventListener('keydown', e => { if (['Enter', ' '].includes(e.key)) { e.preventDefault(); select(); } }); map.append(node);
@@ -74,7 +74,7 @@
     resizeMap();
   }
   function resizeMap() { $('bundle-map').style.width = mapWidth * zoom + 'px'; $('bundle-map').style.height = mapHeight * zoom + 'px'; $('bundle-zoom-value').textContent = Math.round(zoom * 100) + '%'; }
-  function fitMap(readable = false) { if (!$('project-workspace').hidden) { zoom = Math.min(1, Math.max(readable ? .8 : .35, ($('bundle-canvas').clientWidth - 20) / mapWidth)); resizeMap(); } }
+  function fitMap(readable = false) { if (!$('view-checkpoints').hidden) { zoom = Math.min(1, Math.max(readable ? .8 : .35, ($('bundle-canvas').clientWidth - 20) / mapWidth)); resizeMap(); } }
   function details() {
     const event = current.events.find(e => e.id === selected); $('event-detail').hidden = !event; if (!event) return;
     const assessment = current.checkpoint.events[event.id];
@@ -83,7 +83,8 @@
     $('event-reasons').replaceChildren();
     for (const reason of assessment.reasons) {
       const li = element('li', reason.met === true ? 'met' : reason.met === false ? 'unmet' : 'informational');
-      li.append(element('span', 'reason-symbol', reason.met === true ? '✓' : reason.met === false ? '×' : '•'), element('strong', '', reason.label));
+      const mark = svg('svg', { class: 'icon small reason-symbol', 'aria-hidden': 'true' }); mark.append(svg('use', { href: reason.met === true ? '#i-check' : reason.met === false ? '#i-close' : '#i-dot' }));
+      li.append(mark, element('strong', '', reason.label), element('span', 'sr', reason.met === true ? ' (met)' : reason.met === false ? ' (not met)' : ''));
       if (reason.detail) li.append(element('p', '', reason.detail)); $('event-reasons').append(li);
     }
     $('event-dependencies').replaceChildren();
@@ -101,10 +102,8 @@
   $('bundle-zoom-in').onclick = () => { zoom = Math.min(1.5, zoom * 1.2); resizeMap(); };
   $('bundle-zoom-out').onclick = () => { zoom = Math.max(.25, zoom / 1.2); resizeMap(); };
   $('bundle-fit').onclick = () => fitMap();
-  $('back-scripts').onclick = close;
-  $('return-project').onclick = () => { $('script-workspace').hidden = true; $('project-workspace').hidden = false; requestAnimationFrame(() => fitMap(true)); };
   $('bundle-example').onclick = () => { document.dispatchEvent(new Event('branchlight:cancel-import')); open(BranchlightBundle.example()); };
   $('download-bundle-example').onclick = () => { const url = URL.createObjectURL(new Blob([JSON.stringify(BranchlightBundle.example(), null, 2)], { type: 'application/json' })); const a = element('a'); a.href = url; a.download = 'lantern.branchlight.json'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); };
-  window.BranchlightProject = { open, close };
-  new ResizeObserver(() => { if (!$('project-workspace').hidden) fitMap(true); }).observe($('bundle-canvas'));
+  window.BranchlightProject = { open, close, fit: () => fitMap(true), loaded: () => !!bundle };
+  new ResizeObserver(() => { if (!$('view-checkpoints').hidden) fitMap(true); }).observe($('bundle-canvas'));
 })();

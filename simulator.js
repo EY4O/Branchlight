@@ -184,7 +184,8 @@
     let variables = {}; const issues = [...(graph.initializationNotes || [])];
     const entries = [...(graph.initializers || [])].map(s => {
       const m = s.text.match(/^(default|define)\s+(?:(-?\d+)\s+)?([\s\S]+)$/); return { ...s, kind: m?.[1], priority: Number(m?.[2] || 0), assignment: m?.[3] || '' };
-    }).sort((a, b) => (a.kind === 'default') - (b.kind === 'default') || a.priority - b.priority || (a.file < b.file ? -1 : a.file > b.file ? 1 : a.line - b.line));
+    // Presentation defines such as Character(...) or Dissolve(...) are not story state; skipping them keeps start-up quiet.
+    }).filter(s => !(s.kind === 'define' && /^[\p{L}_][\p{L}\p{N}_.]*\s*=\s*[A-Z]\w*\s*\(/u.test(s.assignment))).sort((a, b) => (a.kind === 'default') - (b.kind === 'default') || a.priority - b.priority || (a.file < b.file ? -1 : a.file > b.file ? 1 : a.line - b.line));
     for (const s of entries) {
       try {
         if (s.kind === 'default') {

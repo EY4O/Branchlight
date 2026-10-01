@@ -1,0 +1,785 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-01T08:47:32+00:00",
+  "title": "Design System: Branchlight",
+  "extensions": {
+    "colorMeta": {
+      "cabinet-ground": {
+        "role": "neutral",
+        "displayName": "Cabinet Ground",
+        "canonical": "#e6e9e2",
+        "cssVar": "--ground",
+        "dark": "#0f1612",
+        "oklch": "oklch(93.0% 0.010 125.7)",
+        "tonalRamp": [
+          "#0a0c08",
+          "#242621",
+          "#41433d",
+          "#60625c",
+          "#81837d",
+          "#a3a6a0",
+          "#c7cac3",
+          "#edf0e9"
+        ]
+      },
+      "cabinet-ground-recess": {
+        "role": "neutral",
+        "displayName": "Cabinet Ground Recess",
+        "canonical": "#dde2d8",
+        "cssVar": "--ground-2",
+        "dark": "#141d18",
+        "oklch": "oklch(90.6% 0.014 128.6)",
+        "tonalRamp": [
+          "#090c06",
+          "#23261f",
+          "#40443b",
+          "#5f635a",
+          "#80847b",
+          "#a2a79d",
+          "#c6cbc1",
+          "#ebf0e6"
+        ]
+      },
+      "rag-sheet": {
+        "role": "neutral",
+        "displayName": "Rag Sheet",
+        "canonical": "#fbfcf9",
+        "cssVar": "--sheet",
+        "dark": "#18221c",
+        "oklch": "oklch(98.9% 0.004 121.6)",
+        "tonalRamp": [
+          "#0b0b0a",
+          "#252523",
+          "#414240",
+          "#61625f",
+          "#828380",
+          "#a4a5a3",
+          "#c8c9c7",
+          "#eeefec"
+        ]
+      },
+      "rag-sheet-shade": {
+        "role": "neutral",
+        "displayName": "Rag Sheet Shade",
+        "canonical": "#f1f3ee",
+        "cssVar": "--sheet-2",
+        "dark": "#1d2922",
+        "oklch": "oklch(96.1% 0.007 124.4)",
+        "tonalRamp": [
+          "#0a0c09",
+          "#242622",
+          "#41433f",
+          "#60625e",
+          "#81837f",
+          "#a4a6a1",
+          "#c8cac5",
+          "#edefea"
+        ]
+      },
+      "rag-sheet-deep": {
+        "role": "neutral",
+        "displayName": "Rag Sheet Deep",
+        "canonical": "#e8ece5",
+        "cssVar": "--sheet-3",
+        "dark": "#24322a",
+        "oklch": "oklch(93.8% 0.010 131.4)",
+        "tonalRamp": [
+          "#0a0c08",
+          "#232621",
+          "#40433e",
+          "#5f625c",
+          "#80847d",
+          "#a3a6a0",
+          "#c7cbc4",
+          "#ecf0e9"
+        ]
+      },
+      "herbarium-ink": {
+        "role": "neutral",
+        "displayName": "Herbarium Ink",
+        "canonical": "#17251e",
+        "cssVar": "--ink",
+        "dark": "#e1e9e2",
+        "oklch": "oklch(24.9% 0.023 162.4)",
+        "tonalRamp": [
+          "#030e08",
+          "#1b2922",
+          "#37463e",
+          "#56665d",
+          "#76877e",
+          "#99aaa1",
+          "#bccec5",
+          "#e1f4ea"
+        ]
+      },
+      "herbarium-ink-soft": {
+        "role": "neutral",
+        "displayName": "Herbarium Ink Soft",
+        "canonical": "#46554c",
+        "cssVar": "--ink-2",
+        "dark": "#b0bfb4",
+        "oklch": "oklch(43.4% 0.024 158.9)",
+        "tonalRamp": [
+          "#030e08",
+          "#1b2921",
+          "#37463d",
+          "#56665c",
+          "#77877d",
+          "#99aaa0",
+          "#bdcec4",
+          "#e2f4e9"
+        ]
+      },
+      "herbarium-ink-faint": {
+        "role": "neutral",
+        "displayName": "Herbarium Ink Faint",
+        "canonical": "#576559",
+        "cssVar": "--ink-3",
+        "dark": "#8f9f94",
+        "oklch": "oklch(49.1% 0.026 149.3)",
+        "tonalRamp": [
+          "#040e06",
+          "#1c291e",
+          "#39463b",
+          "#576659",
+          "#78877a",
+          "#9aaa9d",
+          "#becec0",
+          "#e3f4e5"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#d3d9cf",
+        "cssVar": "--rule",
+        "dark": "#2a3830",
+        "oklch": "oklch(87.8% 0.015 132.5)",
+        "tonalRamp": [
+          "#090d06",
+          "#22271f",
+          "#3f443c",
+          "#5e635a",
+          "#7f847b",
+          "#a1a79e",
+          "#c5cbc1",
+          "#ebf1e7"
+        ]
+      },
+      "hairline-strong": {
+        "role": "neutral",
+        "displayName": "Hairline Strong",
+        "canonical": "#b3bdb0",
+        "cssVar": "--rule-strong",
+        "dark": "#405247",
+        "oklch": "oklch(78.7% 0.021 138.4)",
+        "tonalRamp": [
+          "#070d05",
+          "#20281e",
+          "#3c453a",
+          "#5b6459",
+          "#7c8679",
+          "#9fa89c",
+          "#c3cdbf",
+          "#e8f2e5"
+        ]
+      },
+      "specimen-green": {
+        "role": "secondary",
+        "displayName": "Specimen Green",
+        "canonical": "#1f3a2f",
+        "cssVar": "--specimen",
+        "dark": "#2f5442",
+        "oklch": "oklch(32.3% 0.039 166.1)",
+        "tonalRamp": [
+          "#001007",
+          "#102b21",
+          "#2d493d",
+          "#4c695c",
+          "#6d8a7d",
+          "#8fad9f",
+          "#b2d2c3",
+          "#d7f7e9"
+        ]
+      },
+      "specimen-ink": {
+        "role": "secondary",
+        "displayName": "Specimen Ink",
+        "canonical": "#eef4ee",
+        "cssVar": "--specimen-ink",
+        "dark": "#eef6ef",
+        "oklch": "oklch(96.1% 0.010 145.5)",
+        "tonalRamp": [
+          "#090c09",
+          "#222622",
+          "#3f433f",
+          "#5e635e",
+          "#7f847f",
+          "#a1a7a1",
+          "#c5cbc5",
+          "#eaf0ea"
+        ]
+      },
+      "specimen-ink-soft": {
+        "role": "secondary",
+        "displayName": "Specimen Ink Soft",
+        "canonical": "#a9c4b2",
+        "cssVar": "--specimen-ink-2",
+        "dark": "#b9d6c2",
+        "oklch": "oklch(79.5% 0.039 156.2)",
+        "tonalRamp": [
+          "#001005",
+          "#142b1d",
+          "#314839",
+          "#506858",
+          "#708a79",
+          "#92ad9b",
+          "#b6d1bf",
+          "#dbf7e4"
+        ]
+      },
+      "action-green": {
+        "role": "primary",
+        "displayName": "Action Green",
+        "canonical": "#2b7549",
+        "cssVar": "--action",
+        "dark": "#63b783",
+        "oklch": "oklch(50.4% 0.102 154.2)",
+        "tonalRamp": [
+          "#001103",
+          "#002e15",
+          "#03502a",
+          "#277246",
+          "#4c9466",
+          "#6fb888",
+          "#93ddab",
+          "#c6ffd7"
+        ]
+      },
+      "action-green-deep": {
+        "role": "primary",
+        "displayName": "Action Green Deep",
+        "canonical": "#22623c",
+        "cssVar": "--action-hover",
+        "dark": "#79c696",
+        "oklch": "oklch(44.4% 0.090 154.1)",
+        "tonalRamp": [
+          "#001003",
+          "#012e16",
+          "#094f2b",
+          "#317049",
+          "#549269",
+          "#77b68b",
+          "#9adbaf",
+          "#c7fed8"
+        ]
+      },
+      "action-ink": {
+        "role": "primary",
+        "displayName": "Action Ink",
+        "canonical": "#ffffff",
+        "cssVar": "--action-ink",
+        "dark": "#0a1a10",
+        "oklch": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "action-wash": {
+        "role": "primary",
+        "displayName": "Action Wash",
+        "canonical": "#e1efe4",
+        "cssVar": "--action-wash",
+        "dark": "#1d3527",
+        "oklch": "oklch(93.9% 0.021 152.2)",
+        "tonalRamp": [
+          "#050e07",
+          "#1e2820",
+          "#3a453d",
+          "#59655b",
+          "#7a867c",
+          "#9ca99f",
+          "#c0cdc3",
+          "#e5f3e8"
+        ]
+      },
+      "stamp-red": {
+        "role": "secondary",
+        "displayName": "Stamp Red",
+        "canonical": "#a33f27",
+        "cssVar": "--stamp",
+        "dark": "#e8917a",
+        "oklch": "oklch(50.1% 0.138 34.8)",
+        "tonalRamp": [
+          "#230000",
+          "#4a0800",
+          "#771e06",
+          "#a03c24",
+          "#c75f46",
+          "#ee8368",
+          "#feb4a1",
+          "#fee9e4"
+        ]
+      },
+      "stamp-wash": {
+        "role": "secondary",
+        "displayName": "Stamp Wash",
+        "canonical": "#f8e8e1",
+        "cssVar": "--stamp-wash",
+        "dark": "#3a221b",
+        "oklch": "oklch(94.2% 0.020 45.3)",
+        "tonalRamp": [
+          "#120805",
+          "#2e221d",
+          "#4b3f39",
+          "#6b5e58",
+          "#8d7f79",
+          "#b0a19b",
+          "#d5c5bf",
+          "#fbebe4"
+        ]
+      },
+      "gate-amber": {
+        "role": "tertiary",
+        "displayName": "Gate Amber",
+        "canonical": "#8a6210",
+        "cssVar": "--amber",
+        "dark": "#ddb563",
+        "oklch": "oklch(52.5% 0.104 79.0)",
+        "tonalRamp": [
+          "#150800",
+          "#342100",
+          "#593c00",
+          "#805900",
+          "#a37a30",
+          "#c89d55",
+          "#eec179",
+          "#feecd0"
+        ]
+      },
+      "gate-amber-line": {
+        "role": "tertiary",
+        "displayName": "Gate Amber Line",
+        "canonical": "#b8892a",
+        "cssVar": "--amber-line",
+        "dark": "#c39a45",
+        "oklch": "oklch(65.9% 0.121 80.7)",
+        "tonalRamp": [
+          "#140800",
+          "#332100",
+          "#583c00",
+          "#7f5a00",
+          "#a77910",
+          "#cc9c41",
+          "#f2c167",
+          "#feecce"
+        ]
+      },
+      "gate-amber-wash": {
+        "role": "tertiary",
+        "displayName": "Gate Amber Wash",
+        "canonical": "#f7eed8",
+        "cssVar": "--amber-wash",
+        "dark": "#32291a",
+        "oklch": "oklch(95.0% 0.031 88.4)",
+        "tonalRamp": [
+          "#100a00",
+          "#2b2413",
+          "#49412f",
+          "#68614e",
+          "#8a826e",
+          "#ada490",
+          "#d1c9b3",
+          "#f7eed8"
+        ]
+      },
+      "call-violet": {
+        "role": "tertiary",
+        "displayName": "Call Violet",
+        "canonical": "#5b4d8a",
+        "cssVar": "--violet",
+        "dark": "#b6a7df",
+        "oklch": "oklch(46.2% 0.098 292.7)",
+        "tonalRamp": [
+          "#10002f",
+          "#28174f",
+          "#453671",
+          "#635693",
+          "#8477b8",
+          "#a79add",
+          "#cbbfff",
+          "#efecff"
+        ]
+      },
+      "call-violet-wash": {
+        "role": "tertiary",
+        "displayName": "Call Violet Wash",
+        "canonical": "#ece9f5",
+        "cssVar": "--violet-wash",
+        "dark": "#2a2639",
+        "oklch": "oklch(94.0% 0.016 297.5)",
+        "tonalRamp": [
+          "#0c0a11",
+          "#26232c",
+          "#43404a",
+          "#625f6a",
+          "#83808b",
+          "#a6a3ae",
+          "#cac7d3",
+          "#efecf8"
+        ]
+      },
+      "folder-sage": {
+        "role": "folder",
+        "displayName": "Folder Sage",
+        "canonical": "#6a8d58",
+        "cssVar": "--f0",
+        "dark": "#8fb27c",
+        "oklch": "oklch(60.3% 0.086 135.5)",
+        "tonalRamp": [
+          "#011000",
+          "#112d00",
+          "#2c4c19",
+          "#4b6c39",
+          "#6b8e59",
+          "#8db27b",
+          "#b1d69e",
+          "#d5fcc2"
+        ]
+      },
+      "folder-manila": {
+        "role": "folder",
+        "displayName": "Folder Manila",
+        "canonical": "#ad8a37",
+        "cssVar": "--f1",
+        "dark": "#d0ad5f",
+        "oklch": "oklch(65.1% 0.109 85.8)",
+        "tonalRamp": [
+          "#130900",
+          "#312200",
+          "#543e00",
+          "#7b5c03",
+          "#9f7d27",
+          "#c4a04e",
+          "#e9c473",
+          "#feedc8"
+        ]
+      },
+      "folder-blue": {
+        "role": "folder",
+        "displayName": "Folder Blue",
+        "canonical": "#4c7596",
+        "cssVar": "--f2",
+        "dark": "#7fa6c6",
+        "oklch": "oklch(54.6% 0.069 243.8)",
+        "tonalRamp": [
+          "#000c1e",
+          "#012741",
+          "#1d4664",
+          "#3d6686",
+          "#5e87a9",
+          "#80aace",
+          "#a3cff3",
+          "#e1f1ff"
+        ]
+      },
+      "folder-red-brown": {
+        "role": "folder",
+        "displayName": "Folder Red Brown",
+        "canonical": "#a1573b",
+        "cssVar": "--f3",
+        "dark": "#d18768",
+        "oklch": "oklch(53.8% 0.106 41.1)",
+        "tonalRamp": [
+          "#210000",
+          "#441200",
+          "#6e290b",
+          "#924a2e",
+          "#b76b4f",
+          "#de8e70",
+          "#fcb69c",
+          "#ffe9e2"
+        ]
+      },
+      "folder-violet": {
+        "role": "folder",
+        "displayName": "Folder Violet",
+        "canonical": "#78649b",
+        "cssVar": "--f4",
+        "dark": "#a895cb",
+        "oklch": "oklch(54.5% 0.087 300.3)",
+        "tonalRamp": [
+          "#120029",
+          "#2c1848",
+          "#4a3669",
+          "#69558b",
+          "#8a76af",
+          "#ad99d4",
+          "#d2bdfa",
+          "#f1ebfe"
+        ]
+      },
+      "folder-teal": {
+        "role": "folder",
+        "displayName": "Folder Teal",
+        "canonical": "#3c827d",
+        "cssVar": "--f5",
+        "dark": "#6db4ad",
+        "oklch": "oklch(56.0% 0.071 189.1)",
+        "tonalRamp": [
+          "#000f0e",
+          "#002c2a",
+          "#014d49",
+          "#266e69",
+          "#4b908b",
+          "#6eb4ae",
+          "#92d9d3",
+          "#b7fff8"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "List-view titles; drawer titles at 18px."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Sheet and section headings, 13 to 15px."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Base text and tabs."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Field labels, section titles, captions."
+      },
+      "data": {
+        "displayName": "Data",
+        "purpose": "Every script-derived value, tabular numerals."
+      },
+      "stamp": {
+        "displayName": "Stamp",
+        "purpose": "Uppercase category stamp on determination slips only."
+      },
+      "openDecision": {
+        "displayName": "Typeface decision",
+        "purpose": "Archivo (interface) and Courier Prime (typed data) are self-hosted in fonts/ under the SIL OFL; raw code uses the platform ui-monospace."
+      }
+    },
+    "shadows": [
+      {
+        "name": "lift",
+        "value": "0 1px 1px rgb(23 37 30 / .05), 0 2px 5px -1px rgb(23 37 30 / .10)",
+        "dark": "0 1px 1px rgb(0 0 0 / .35), 0 2px 6px -1px rgb(0 0 0 / .45)",
+        "purpose": "Sheets, slips, ledger, collection label, map toolbar and zoom."
+      },
+      {
+        "name": "lift-high",
+        "value": "0 2px 3px rgb(23 37 30 / .08), 0 8px 14px -4px rgb(23 37 30 / .18)",
+        "dark": "0 2px 4px rgb(0 0 0 / .45), 0 10px 16px -4px rgb(0 0 0 / .6)",
+        "purpose": "Open menu, import message, overlaying drawer."
+      },
+      {
+        "name": "pressed-segment",
+        "value": "0 0 0 1px var(--ink-3), 0 1px 2px rgb(0 0 0 / .12)",
+        "purpose": "Selected option in segmented controls and the appearance switcher."
+      }
+    ],
+    "motion": [
+      {
+        "name": "camera-glide",
+        "value": "460ms, ease 1 - 2^(-10t), zoom interpolated in log space",
+        "purpose": "Signature: map camera eases to a node when drilling in from Overview, Variables, or Problems. Instant under reduced motion."
+      },
+      {
+        "name": "drawer-in",
+        "value": "220ms cubic-bezier(.16, 1, .3, 1), translateX(16px) from 0 opacity",
+        "purpose": "Inspector and simulator drawer entrance; 24px upward as a mobile tray."
+      },
+      {
+        "name": "reveal",
+        "value": "200ms ease-out, translateY(-4px) from 0 opacity",
+        "purpose": "Variable detail expansion."
+      },
+      {
+        "name": "state",
+        "value": "150ms (120ms on rows, 180ms switch with cubic-bezier(.2, .8, .2, 1))",
+        "purpose": "Colour and border state transitions."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "all animations and transitions 0.01ms",
+        "purpose": "prefers-reduced-motion: reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "1240px"
+      },
+      {
+        "name": "drawer-overlay",
+        "value": "1100px"
+      },
+      {
+        "name": "stacked",
+        "value": "900px"
+      },
+      {
+        "name": "mobile",
+        "value": "720px"
+      }
+    ],
+    "layout": {
+      "topBar": "56px (96px at 720px)",
+      "overviewColumns": "236px / 1fr / 312px",
+      "checkpointColumns": "250px / 1fr / 320px",
+      "drawer": "380px",
+      "depthGutter": "34px",
+      "listSheetMax": "1240px",
+      "gutter": "18px"
+    }
+  },
+  "components": [
+    {
+      "name": "Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Quiet paper button for every ordinary command.",
+      "html": "<button class=\"ds-button\"><svg class=\"ds-icon\" viewBox=\"0 0 20 20\"><path d=\"M2.75 5.5v9.75c0 .55.45 1 1 1h12.5c.55 0 1-.45 1-1V7.75c0-.55-.45-1-1-1H9.9L8.2 4.5H3.75c-.55 0-1 .45-1 1z\"/></svg>Open</button>",
+      "css": ".ds-button{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border:1px solid var(--rule-strong,#b3bdb0);border-radius:5px;background:var(--sheet,#fbfcf9);color:var(--ink,#17251e);font:500 13.5px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color .15s,border-color .15s}.ds-button:hover{background:var(--sheet-2,#f1f3ee);border-color:var(--ink-3,#576559)}.ds-button:active{background:var(--sheet-3,#e8ece5)}.ds-button:focus-visible{outline:2px solid var(--action,#2b7549);outline-offset:2px}.ds-icon{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}"
+    },
+    {
+      "name": "Action Button",
+      "kind": "button",
+      "refersTo": "button-action",
+      "description": "The one Action Green button per context, e.g. Simulate route.",
+      "html": "<button class=\"ds-button-action\"><svg class=\"ds-icon\" viewBox=\"0 0 20 20\"><path d=\"M6.5 4.75v10.5L15 10z\" fill=\"currentColor\"/></svg>Simulate route</button>",
+      "css": ".ds-button-action{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border:1px solid var(--action,#2b7549);border-radius:5px;background:var(--action,#2b7549);color:var(--action-ink,#fff);font:600 13.5px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color .15s,border-color .15s}.ds-button-action:hover{background:var(--action-hover,#22623c);border-color:var(--action-hover,#22623c)}.ds-button-action:focus-visible{outline:2px solid var(--action,#2b7549);outline-offset:2px}.ds-icon{width:18px;height:18px;flex:none}"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "Monospace search with sans placeholder; Action Green focus outline.",
+      "html": "<label class=\"ds-search\"><svg class=\"ds-icon\" viewBox=\"0 0 20 20\"><circle cx=\"8.75\" cy=\"8.75\" r=\"5\"/><path d=\"M12.5 12.5l4 4\"/></svg><input placeholder=\"Find a variable\"></label>",
+      "css": ".ds-search{display:flex;align-items:center;gap:6px;height:32px;padding:0 9px;border:1px solid var(--rule-strong,#b3bdb0);border-radius:4px;background:var(--sheet,#fbfcf9);color:var(--ink-3,#576559)}.ds-search:focus-within{border-color:var(--ink-3,#576559);outline:2px solid var(--action,#2b7549);outline-offset:1px}.ds-search input{width:190px;border:0;background:none;outline:none;font:13px ui-monospace,'SF Mono',Menlo,monospace;color:var(--ink,#17251e)}.ds-search input::placeholder{font-family:-apple-system,system-ui,sans-serif;color:var(--ink-3,#576559)}.ds-icon{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}"
+    },
+    {
+      "name": "View Tabs",
+      "kind": "nav",
+      "refersTo": "",
+      "description": "Top-bar view tabs with monospace counts and an ink underline on the current view.",
+      "html": "<nav class=\"ds-tabs\"><a aria-current=\"page\">Overview</a><a>Map</a><a>Variables <span class=\"ds-count\">5</span></a><a>Problems <span class=\"ds-count ds-alert\">4</span></a></nav>",
+      "css": ".ds-tabs{display:flex;gap:2px;height:56px;border-bottom:1px solid var(--rule,#d3d9cf);background:var(--ground,#e6e9e2);font-family:-apple-system,system-ui,sans-serif}.ds-tabs a{position:relative;display:flex;align-items:center;gap:7px;padding:0 11px;font-size:14px;font-weight:500;color:var(--ink-3,#576559);cursor:pointer;transition:color .15s}.ds-tabs a:hover,.ds-tabs a[aria-current=page]{color:var(--ink,#17251e)}.ds-tabs a[aria-current=page]::after{content:'';position:absolute;left:11px;right:11px;bottom:-1px;height:2px;border-radius:1px;background:var(--ink,#17251e)}.ds-count{min-width:20px;padding:0 5px;border-radius:3px;background:var(--sheet-3,#e8ece5);font:500 11.5px/18px ui-monospace,Menlo,monospace;color:var(--ink-2,#46554c);text-align:center}.ds-count.ds-alert{background:var(--stamp-wash,#f8e8e1);color:var(--stamp,#a33f27)}"
+    },
+    {
+      "name": "Genus Folder",
+      "kind": "card",
+      "refersTo": "folder",
+      "description": "A file card with its folder-colour tab sized by share of scenes.",
+      "html": "<button class=\"ds-folder\" style=\"--f:#6a8d58;--share:.6\"><span class=\"ds-fname\">script.rpy</span><span class=\"ds-fprob\">1</span><span class=\"ds-fmeta\">3 labels · 6 choices · 41 lines</span></button>",
+      "css": ".ds-folder{position:relative;display:grid;grid-template-columns:1fr auto;gap:3px 8px;width:236px;margin-top:8px;padding:10px 11px 11px;border:1px solid var(--rule-strong,#b3bdb0);border-radius:0 4px 4px 4px;background:var(--sheet,#fbfcf9);text-align:left;cursor:pointer;font-family:-apple-system,system-ui,sans-serif;transition:border-color .15s,box-shadow .15s}.ds-folder::before{content:'';position:absolute;left:-1px;top:-8px;width:calc(20% + var(--share,1)*60%);height:8px;border-radius:4px 6px 0 0;background:var(--f)}.ds-folder:hover{border-color:var(--f)}.ds-folder:focus-visible{outline:2px solid var(--action,#2b7549);outline-offset:2px}.ds-fname{font:500 13px/1.35 ui-monospace,Menlo,monospace;color:var(--ink,#17251e)}.ds-fprob{font:500 11.5px/18px ui-monospace,Menlo,monospace;padding:0 5px;border-radius:3px;background:var(--stamp-wash,#f8e8e1);color:var(--stamp,#a33f27)}.ds-fmeta{grid-column:1/-1;font-size:12px;color:var(--ink-3,#576559)}"
+    },
+    {
+      "name": "Specimen Label",
+      "kind": "custom",
+      "refersTo": "specimen-label",
+      "description": "Typed collection label: hairline frame, sans title, monospace values.",
+      "html": "<dl class=\"ds-label\"><div class=\"ds-label-title\">The lantern path</div><dt>Files</dt><dd>3</dd><dt>Labels</dt><dd>11</dd><dt>Problems</dt><dd>4</dd></dl>",
+      "css": ".ds-label{display:grid;grid-template-columns:auto 1fr;gap:3px 14px;width:240px;margin:0;padding:11px 13px 12px;border:1px solid var(--ink-3,#576559);border-radius:2px;background:var(--sheet,#fbfcf9);font:12px/1.55 -apple-system,system-ui,sans-serif}.ds-label-title{grid-column:1/-1;margin-bottom:5px;padding-bottom:6px;border-bottom:1px solid var(--rule-strong,#b3bdb0);font-weight:600;font-size:13px;color:var(--ink,#17251e)}.ds-label dt{color:var(--ink-3,#576559)}.ds-label dd{margin:0;font-family:ui-monospace,Menlo,monospace;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink,#17251e)}"
+    },
+    {
+      "name": "Determination Slip",
+      "kind": "card",
+      "refersTo": "determination-slip",
+      "description": "A problem record with a framed severity stamp and a file:line reference.",
+      "html": "<div class=\"ds-slip\"><span class=\"ds-stamp\">Missing label</span><p>Label “ridge” is not in the loaded files.</p><div class=\"ds-ref\"><i class=\"ds-ftab\"></i>endings.rpy:10 <a>Show on map</a></div></div>",
+      "css": ".ds-slip{display:grid;gap:5px;width:300px;padding:10px 12px 11px;border:1px solid var(--rule,#d3d9cf);border-radius:3px;background:var(--sheet,#fbfcf9);box-shadow:0 1px 1px rgb(23 37 30/.05),0 2px 5px -1px rgb(23 37 30/.10);font-family:-apple-system,system-ui,sans-serif}.ds-stamp{justify-self:start;padding:0 5px;border:1px solid currentColor;border-radius:2px;font-size:10.5px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;line-height:17px;color:var(--stamp,#a33f27)}.ds-slip p{margin:0;font-size:13px;line-height:1.5;color:var(--ink,#17251e)}.ds-ref{display:flex;align-items:center;gap:8px;font:11.5px/1.5 ui-monospace,Menlo,monospace;color:var(--ink-3,#576559)}.ds-ref a{margin-left:auto;font:12px -apple-system,system-ui,sans-serif;color:var(--ink-2,#46554c);cursor:pointer}.ds-ref a:hover{color:var(--ink,#17251e);text-decoration:underline}.ds-ftab{display:inline-block;width:13px;height:6px;border-radius:2px 3px 0 0;background:#4c7596}"
+    },
+    {
+      "name": "Barcode Strip",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Per-variable strip: ink ticks above where it is changed, amber below where it is checked, on per-file baselines.",
+      "html": "<svg class=\"ds-barcode\" viewBox=\"0 0 300 22\" preserveAspectRatio=\"none\"><line class=\"ds-base\" x1=\"0\" y1=\"11\" x2=\"118\" y2=\"11\" stroke=\"#6a8d58\"/><line class=\"ds-base\" x1=\"122\" y1=\"11\" x2=\"198\" y2=\"11\" stroke=\"#ad8a37\"/><line class=\"ds-base\" x1=\"202\" y1=\"11\" x2=\"300\" y2=\"11\" stroke=\"#4c7596\"/><line class=\"ds-set\" x1=\"40\" y1=\"4\" x2=\"40\" y2=\"11\"/><line class=\"ds-set\" x1=\"150\" y1=\"4\" x2=\"150\" y2=\"11\"/><line class=\"ds-check\" x1=\"95\" y1=\"11\" x2=\"95\" y2=\"18\"/><line class=\"ds-check\" x1=\"240\" y1=\"11\" x2=\"240\" y2=\"18\"/></svg>",
+      "css": ".ds-barcode{display:block;width:300px;height:22px}.ds-base{stroke-width:2;opacity:.45;vector-effect:non-scaling-stroke}.ds-set{stroke:var(--ink,#17251e);stroke-width:1.5;vector-effect:non-scaling-stroke}.ds-check{stroke:var(--amber-line,#b8892a);stroke-width:1.5;vector-effect:non-scaling-stroke}"
+    },
+    {
+      "name": "Simulator Choice",
+      "kind": "button",
+      "refersTo": "choice-button",
+      "description": "Next-decision choice in the route simulator, framed in Action Green.",
+      "html": "<button class=\"ds-choice\">Call out to the owl<small>if courage &gt;= 1</small></button>",
+      "css": ".ds-choice{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;width:320px;padding:10px 12px;border:1px solid var(--action,#2b7549);border-radius:4px;background:var(--sheet,#fbfcf9);color:var(--ink,#17251e);text-align:left;font:500 14px/1.45 -apple-system,system-ui,sans-serif;cursor:pointer}.ds-choice::before{content:'';grid-row:span 2;width:7px;height:7px;margin-top:7px;border-radius:50%;background:var(--action,#2b7549)}.ds-choice:hover{background:var(--action-wash,#e1efe4)}.ds-choice:focus-visible{outline:2px solid var(--action,#2b7549);outline-offset:2px}.ds-choice small{grid-column:2;font:400 11.5px/1.5 ui-monospace,Menlo,monospace;color:var(--ink-3,#576559)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Herbarium Sheet",
+    "overview": "The story is a pressed specimen: the whole branching plant mounted flat on one sheet, labelled and filed so a large collection reads at a glance. Every view sits on bright rag paper laid over a grey-green cabinet ground. Each script file is a genus folder with its own muted colour, carried as a folder tab on every node, row, and reference that belongs to it. Metadata is typed onto hairline-framed specimen labels in monospace; problems arrive as determination slips with a stamped category.\n\nThe surface is dense and quiet. Colour is almost entirely structural (folder hues, a deep specimen green for choice points) until something needs attention: stamp red for what is broken, amber for conditions and gates, violet for calls, and one saturated action green that means \"do this\" or \"this is the route you followed\". Depth is paper on paper, never glass or glow.\n\nDark mode is the cabinet at night: a deep green-black ground, sheets one step lighter, the same folder hues lifted for legibility. Motion has one signature, the camera glide that eases the map to an exact node when you drill in, and otherwise stays to short state transitions.",
+    "keyCharacteristics": [
+      "Rag-white sheets on a grey-green ground; ink is near-black green, never pure black.",
+      "Six genus folder colours, one per file, shown as folder tabs.",
+      "Monospace for every piece of script data: label names, file:line references, variable names, values, counts.",
+      "One saturated green reserved for actions and the live simulated route.",
+      "Hairline borders and paper-thin two-layer shadows; no gradients, no blur.",
+      "An eased camera glide is the signature interaction."
+    ],
+    "rules": [
+      {
+        "name": "The One Green Rule",
+        "body": "Action Green appears only on things the user can act on and on the route they are simulating. Structure that is green for identity uses Specimen Green, which is darker and never interactive by colour alone.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Meaning Rule",
+        "body": "Stamp red is a problem, amber is a condition or gate, violet is a call. None of them is decoration, and none substitutes for another.",
+        "section": "colors"
+      },
+      {
+        "name": "The Folder Tab Rule",
+        "body": "A file's colour travels with its content as a small tab (13 x 6px, top corners rounded), never as a fill behind text.",
+        "section": "colors"
+      },
+      {
+        "name": "The Typed Data Rule",
+        "body": "If it was read from the script (a name, a value, a path, a line number, a count), it is set in monospace with tabular numerals. Explanations about it are set in sans.",
+        "section": "typography"
+      },
+      {
+        "name": "The Stamp Only Rule",
+        "body": "Uppercase letter-spaced type exists only inside the framed stamp on a determination slip. It is not a heading device.",
+        "section": "typography"
+      },
+      {
+        "name": "The Mounted Paper Rule",
+        "body": "A surface is either on the ground or a sheet with Lift. Only things floating over other content get High Lift. Compact slip lists inside a drawer drop the shadow entirely.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** set every script-derived value in monospace with tabular numerals.",
+      "**Do** carry a file's identity as a folder tab in its folder colour wherever its content appears.",
+      "**Do** reserve Action Green for actions, focus, and the simulated route; use Specimen Green for structural green.",
+      "**Do** recede off-route or unreached content by colour and dashed outlines, keeping text readable.",
+      "**Do** keep depth to Lift and High Lift on rag sheets over the cabinet ground.",
+      "**Do** make the camera glide instant under `prefers-reduced-motion`."
+    ],
+    "donts": [
+      "**Don't** use stamp red, amber, or violet for anything other than problems, conditions and gates, and calls respectively.",
+      "**Don't** add uppercase letter-spaced kickers or eyebrows over headings; uppercase lives only in slip stamps.",
+      "**Don't** fill text areas with folder colours or use them for status.",
+      "**Don't** add decorative gradients, blur, glow, or a dot-grid canvas; the ground is flat cabinet colour.",
+      "**Don't** use pure black or pure white for ink or ground; both modes stay green-tinted."
+    ]
+  }
+}

@@ -8,7 +8,10 @@ Branchlight turns `.rpy` scripts into an interactive flowchart, making it easier
 
 ## Features
 
-- Load one or more `.rpy` files.
+- Load one or more `.rpy` files, or a whole game folder (translations are skipped).
+- Start from a project overview: every file, the whole label skeleton, your variables, and problems at a glance.
+- See every stat, relationship, and flag: where it is declared, changed, and checked, with a strip showing where in the script each happens.
+- Find problems quickly: missing labels, labels never reached from `start`, variables checked but never set, assignments without a `default`, and variables nothing reads.
 - Follow choices, conditions, loops, jumps, and calls.
 - Connect labels across multiple files.
 - Simulate a route using editable variables and conditional choices.
@@ -23,19 +26,21 @@ Your scripts stay in your browser. Branchlight does not upload or modify them. R
 
 ## Getting started
 
-Open [Branchlight](https://ey4o.github.io/Branchlight/) and drag your `.rpy` files into the window, or use **Open .rpy files**. Load related files together so connections between them can be resolved.
+Open [Branchlight](https://ey4o.github.io/Branchlight/) and drag your `.rpy` files into the window, or use **Open** in the top bar to choose script files or your whole game folder. Load related files together so connections between them can be resolved.
 
-Use **Explore from** to choose a starting label. Drag the map to move around, scroll to zoom, and click any node to view the corresponding code. **Fit map** brings the full diagram into view.
+Branchlight opens on the **Overview**: your files (each with its own colour), the story skeleton with one box per label, a summary of the collection, your most-used variables, and the top problems. Click a label to open it in the **Map**, a variable to open it in **Variables**, or a problem to jump to the line on the map.
 
-The included example story lets you explore the controls before loading your own project. Use **Appearance** in the top bar to choose **Light**, **Dark**, or **System theme**. Your preference is remembered in that browser when local storage is available.
+In the **Map**, use **From** to choose a starting label. Drag to move around, scroll to zoom, and click any node to view its code and the variables it changes or checks. The numbers down the left edge show how deep each row sits in the story.
+
+The included example story lets you explore before loading your own project. The three buttons at the top right switch between **System**, **Light**, and **Dark** appearance. Your preference is remembered in that browser when local storage is available.
 
 ## Simulating a route
 
-Choose a label under **Explore from**, then open **Simulate a route**. Branchlight fills in the starting variables it can read from `default` and `define` statements. Edit those values and select **Start simulation** to advance to the first choice.
+Choose a label under **From** in the map toolbar, then select **Simulate route**. Branchlight fills in the starting variables it can read from `default` and `define` statements. Edit those values and select **Start simulation** to advance to the first choice.
 
-Choose an available option to follow the story. Assignments update the variables, conditions select the matching branch, and the visited route turns green on the map. **Undo** restores the previous simulation action, including its variables and call stack.
+Choose an available option to follow the story. Assignments update the variables, conditions select the matching branch, and the visited route turns green on the map. **What this route changed** lists each variable your choices changed, one column per choice. **Undo** restores the previous simulation action, including its variables and call stack.
 
-You can use **Next step** or **To next choice** when the simulation is ready to continue. To try a different state, edit the variables and select **Apply variable edits**, then continue. **Restart with these values** starts again at the selected label; **Reset** restores the loaded defaults.
+You can use **Step** or **To next choice** when the simulation is ready to continue. To try a different state, open **Current variables**, edit them, and select **Apply edits**. **Restart** starts again at the selected label; **Reset** restores the loaded defaults.
 
 For example:
 
@@ -53,11 +58,11 @@ This follows one route at a time; it does not automatically enumerate every comb
 
 ## Project maps and checkpoints
 
-For games with custom progression rules, **Open project bundle** loads an event map and checkpoints exported from the game. Select a campaign and checkpoint, then click an event to see its status and why it is available or blocked. Filter by chapter or act with **Group**.
+For games with custom progression rules, **Open → Project bundle** loads an event map and checkpoints exported from the game. Select a campaign and checkpoint, then click an event to see its status and why it is available or blocked. Filter by chapter or act with **Group**.
 
 Recorded checkpoints and hypothetical scenarios are labeled separately. These are read-only snapshots: re-export after changing the game or its state. The bundle viewer does not run custom game code or recalculate availability.
 
-Select **Explore example project** in the sidebar to try it. For the JSON format and guidance on writing a game-specific exporter, see [Project bundles](docs/project-bundles.md). Exporters and private game data stay with their respective projects; Branchlight has no game-specific rules.
+Choose **Open → Example project bundle** to try it. The bundle appears on its own **Checkpoints** tab. For the JSON format and guidance on writing a game-specific exporter, see [Project bundles](docs/project-bundles.md). Exporters and private game data stay with their respective projects; Branchlight has no game-specific rules.
 
 ## Running locally
 
@@ -82,7 +87,7 @@ A few things to keep in mind:
 - **File boundaries:** The end of a loaded file is not necessarily the end of the story.
 - **Source files:** Compiled `.rpyc` files are not supported.
 
-Check **Analysis notes** for unresolved references and unsupported constructs. Simulation has step limits to keep loops from running indefinitely. Use Ren’Py’s own tools to validate and playtest your game.
+Check the **Problems** tab for unresolved references and unsupported constructs. Simulation has step limits to keep loops from running indefinitely. Use Ren’Py’s own tools to validate and playtest your game.
 
 For larger projects, load a smaller group of story files and focus on individual labels. Each selection supports up to 12 MB and 3,000 flow nodes.
 
@@ -93,11 +98,15 @@ Branchlight is a static site with no backend or external runtime dependencies. T
 ```text
 index.html
 style.css
+fonts/
 theme.js
 parser.js
 simulator.js
+story-index.js
 project-bundle.js
+pan-zoom.js
 project-view.js
+views.js
 app.js
 ```
 
@@ -105,7 +114,7 @@ A GitHub Pages deployment workflow is also included in `.github/workflows/pages.
 
 ## Development
 
-The interface uses plain HTML, CSS, and JavaScript. The script parser lives in `parser.js`, the expression interpreter and route simulator in `simulator.js`, and the script diagram and browser interactions in `app.js`. Project bundle validation lives in `project-bundle.js`, with its interface in `project-view.js`.
+The interface uses plain HTML, CSS, and JavaScript. The script parser lives in `parser.js`, the expression interpreter and route simulator in `simulator.js`, the project-wide index of files, labels, variables, and problems in `story-index.js`, the Overview, Variables, and Problems views in `views.js`, and the map, simulator panel, and loading in `app.js`. Visual design decisions are recorded in `DESIGN.md`. The Archivo and Courier Prime fonts in `fonts/` are included under the SIL Open Font License (see the `OFL-*.txt` files). Project bundle validation lives in `project-bundle.js`, with its interface in `project-view.js`.
 
 Run the parser, simulator, and project-bundle tests with Node.js 22 or newer:
 
