@@ -22,11 +22,12 @@
       <label class="field-label" for="entry">Explore from</label>
       <select id="entry"><option value="">All labels</option></select>
       <label class="check"><input type="checkbox" id="dialogue"> Show dialogue & actions</label>
+      <button id="open-simulation" class="simulation-launch">▷ Simulate a route</button>
       <div class="rule"></div>
       <span class="eyebrow">MAP KEY</span>
       <ul class="legend"><li><i class="dot label"></i>Label / scene</li><li><i class="dot choice"></i>Player choice</li><li><i class="dot condition"></i>Condition / loop</li><li><i class="dot call"></i>Call to a label</li><li><i class="dot external"></i>Unresolved destination</li></ul>
       <details id="notes"><summary>Analysis notes <span id="warning-count">0</span></summary><div id="warnings"></div></details>
-      <div class="sidebar-bottom"><p>Drop one or more <b>.rpy</b> files anywhere to map your story.</p><button id="example" class="text-button">Load example story ↗</button><p class="footnote">Static map · conditions are shown, not evaluated. Python and screen navigation may add other paths.</p></div>
+      <div class="sidebar-bottom"><p>Drop one or more <b>.rpy</b> files anywhere to map your story.</p><button id="example" class="text-button">Load example story ↗</button><p class="footnote">The map shows possible branches. Simulate a route to follow supported conditions with your variables.</p></div>
     </aside>
     <section class="workspace" aria-label="Story flowchart">
       <div class="canvas-heading"><div><span class="eyebrow">STORY MAP</span><h2 id="map-title">All branches</h2></div><span id="visible-count" class="muted"></span></div>
@@ -38,8 +39,29 @@
       <div id="message" role="status" hidden></div>
     </section>
     <aside id="inspector" hidden aria-label="Selected node source"><div class="inspector-top"><span class="eyebrow">SOURCE DETAIL</span><button id="close-detail" aria-label="Close source detail">×</button></div><span id="detail-type" class="badge"></span><h2 id="detail-title"></h2><p id="detail-location" class="muted"></p><p id="detail-note"></p><div id="connections"></div><pre id="source" tabindex="0"></pre></aside>
+    <aside id="simulation" hidden aria-label="Route simulation">
+      <div class="inspector-top"><span class="eyebrow">ROUTE SIMULATION</span><button id="close-simulation" aria-label="Close simulation">×</button></div>
+      <h2 id="simulation-label"></h2>
+      <p class="simulation-help">Set variables, choose a path, and follow what changes. Your game files stay untouched.</p>
+      <details id="initialization-notes" hidden><summary>Starting values need review</summary><div id="initialization-list"></div></details>
+      <label id="variables-label" class="field-label" for="variables">Starting variables</label>
+      <textarea id="variables" spellcheck="false" rows="5" aria-describedby="variables-help"></textarea>
+      <p id="variables-help" class="simulation-help">One assignment per line, for example: <code>affection = 5</code>. Use <code>True</code>, <code>False</code>, and <code>None</code>.</p>
+      <button id="apply-variables" hidden>Apply variable edits</button>
+      <div class="simulation-buttons"><button id="start-simulation" class="primary">Start simulation</button><button id="reset-simulation">Reset</button></div>
+      <p id="simulation-error" role="alert" hidden></p>
+      <div id="simulation-progress" hidden>
+        <div id="simulation-status" role="status" aria-live="polite"></div>
+        <p id="simulation-location" class="simulation-help"></p>
+        <div class="simulation-buttons"><button id="step-simulation">Next step</button><button id="run-simulation">To next choice</button><button id="back-simulation">Undo</button></div>
+        <div id="simulation-choices"></div>
+        <div id="simulation-overrides"></div>
+        <details id="simulation-log" open><summary>Route history</summary><ol id="simulation-history"></ol></details>
+      </div>
+      <p class="simulation-help">Green marks the visited route. The outlined node is the current step. Unsupported code pauses the simulation; manual overrides are recorded.</p>
+    </aside>
   </main>
   <div id="drop-overlay" hidden>Drop your .rpy files here<span>Read locally. Nothing is uploaded.</span></div>
-  <script src="parser.js"></script><script src="app.js"></script>
+  <script src="parser.js"></script><script src="simulator.js"></script><script src="app.js"></script>
 </body>
 </html>

@@ -20,15 +20,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Check scripts and parser behavior
+      - name: Check scripts and route behavior
         run: |
           node --check parser.js
           node --check app.js
-          node --test tests/parser.test.cjs
+          node --check simulator.js
+          node --test tests/*.test.cjs
       - name: Stage the public app only
         run: |
           mkdir -p _site
-          cp index.html style.css parser.js app.js _site/
+          cp index.html style.css parser.js simulator.js app.js _site/
       - uses: actions/upload-pages-artifact@v4
         with:
           path: _site

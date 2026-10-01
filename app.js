@@ -42,9 +42,10 @@ label home:
     "Tomorrow, perhaps, you will take the other path."
     return
 `;
-  const kinds = { label: 'LABEL', menu: 'CHOICE POINT', choice: 'PLAYER CHOICE', condition: 'CONDITION', passage: 'STORY BEAT', call: 'CALL', jump: 'CALCULATED JUMP', return: 'RETURN', external: 'NOT LOADED', boundary: 'FILE BOUNDARY' };
+  const kinds = { label: 'LABEL', menu: 'CHOICE POINT', choice: 'PLAYER CHOICE', condition: 'CONDITION', passage: 'STORY BEAT', call: 'CALL', jump: 'JUMP', return: 'RETURN', external: 'NOT LOADED', boundary: 'FILE BOUNDARY', unsupported: 'UNSUPPORTED CODE' };
   let graph, view, selected, tx = 0, ty = 0, scale = 1, drag, moved = false, dragDepth = 0;
   let messageTimer, loadVersion = 0;
+  let simulation = null, initialState = { variables: {}, issues: [] };
   function el(tag, attrs = {}, text) { const e = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (text !== undefined) e.textContent = text; return e; }
   function notice(message) { $('message').textContent = message; $('message').hidden = false; clearTimeout(messageTimer); messageTimer = setTimeout(() => $('message').hidden = true, 14000); }
   function transform() { $('viewport').setAttribute('transform', `translate(${tx},${ty}) scale(${scale})`); $('zoom').textContent = Math.round(scale * 100) + '%'; }
@@ -58,21 +59,28 @@ label home:
   }
   function makeView() {
     const outgoing = new Map();
-    for (const e of graph.edges) { if (!outgoing.has(e.from)) outgoing.set(e.from, []); outgoing.get(e.from).push(e); }
+    const mapEdges = [...graph.edges];
+    const existing = new Set(mapEdges.map(e => e.from + '>' + e.to));
+    for (const [from, to] of simulation?.traversed || []) {
+      const key = from + '>' + to;
+      if (!existing.has(key)) { mapEdges.push({ from, to, label: 'Simulated route', kind: 'flow' }); existing.add(key); }
+    }
+    for (const e of mapEdges) { if (!outgoing.has(e.from)) outgoing.set(e.from, []); outgoing.get(e.from).push(e); }
     const reachable = new Set(), queue = $('entry').value ? [$('entry').value] : graph.nodes.map(n => n.id);
+    if (simulation) queue.push(...simulation.trace.map(item => item.id), ...(simulation.pc ? [simulation.pc] : []));
     while (queue.length) { const id = queue.pop(); if (reachable.has(id)) continue; reachable.add(id); for (const e of outgoing.get(id) || []) queue.push(e.to); }
-    const show = n => reachable.has(n.id) && (n.type !== 'passage' || $('dialogue').checked) && (n.type !== 'jump' || n.dynamic);
+    const show = n => reachable.has(n.id) && (n.type !== 'passage' || $('dialogue').checked || simulation) && (n.type !== 'jump' || n.dynamic || simulation);
     const nodes = graph.nodes.filter(show).map(n => ({ ...n })), kept = new Set(nodes.map(n => n.id)), edges = [], dedupe = new Set();
     for (const n of nodes) {
       for (const first of outgoing.get(n.id) || []) {
-        const q = [{ ...first }], seen = new Set();
+        const q = [{ ...first, path: [[first.from, first.to]] }], seen = new Set();
         while (q.length) {
           const e = q.shift();
           if (kept.has(e.to)) {
             const key = [n.id, e.to, e.label, e.kind].join('|');
             if (!dedupe.has(key)) { edges.push({ ...e, from: n.id }); dedupe.add(key); }
           } else if (!seen.has(e.to)) {
-            seen.add(e.to); for (const after of outgoing.get(e.to) || []) q.push({ ...after, label: [e.label, after.label].filter(Boolean).join(' · '), kind: e.kind === 'flow' ? after.kind : e.kind });
+            seen.add(e.to); for (const after of outgoing.get(e.to) || []) q.push({ ...after, path: [...e.path, [after.from, after.to]], label: [e.label, after.label].filter(Boolean).join(' · '), kind: e.kind === 'flow' ? after.kind : e.kind });
           }
         }
       }
@@ -123,6 +131,8 @@ label home:
     if (!graph) return;
     view = makeView(); $('viewport').replaceChildren();
     const byId = new Map(view.nodes.map(n => [n.id, n]));
+    const visited = new Set(simulation?.trace.map(t => t.id) || []);
+    const traversed = new Set(simulation?.traversed.map(pair => pair.join('>')) || []);
     const edgeLayer = el('g'), nodeLayer = el('g'); $('viewport').append(edgeLayer, nodeLayer);
     view.edges.forEach((e, i) => {
       const a = byId.get(e.from), b = byId.get(e.to); if (!a || !b) return;
@@ -132,11 +142,12 @@ label home:
         const side = Math.max(a.x + a.w, b.x + b.w) + 18 + (i % 3) * 8;
         d = `M${a.x + a.w},${a.y + a.h / 2} C${side},${a.y + a.h / 2} ${side},${b.y + b.h / 2} ${b.x + b.w},${b.y + b.h / 2}`;
       }
-      const path = el('path', { d, class: `edge ${e.kind}` }); path.append(el('title', {}, e.label || 'Continue')); edgeLayer.append(path);
+      const path = el('path', { d, class: `edge ${e.kind}${e.path?.every(pair => traversed.has(pair.join('>'))) ? ' traversed' : ''}` }); path.append(el('title', {}, e.label || 'Continue')); edgeLayer.append(path);
       if (e.label) edgeLayer.append(el('text', { x: (sx + ex) / 2 + 8, y: mid - 5, class: 'edge-label', 'text-anchor': 'middle' }, e.label.length > 34 ? e.label.slice(0, 32) + '…' : e.label));
     });
     for (const n of view.nodes) {
-      const g = el('g', { transform: `translate(${n.x},${n.y})`, class: `node ${n.type}${selected === n.id ? ' selected' : ''}`, tabindex: '0', role: 'button', 'aria-label': `${kinds[n.type]}: ${n.title}, line ${n.line}`, 'data-id': n.id });
+      const current = simulation?.pc === n.id;
+      const g = el('g', { transform: `translate(${n.x},${n.y})`, class: `node ${n.type}${selected === n.id ? ' selected' : ''}${visited.has(n.id) ? ' visited' : ''}${current ? ' current' : ''}${simulation && !visited.has(n.id) && !current ? ' sim-unvisited' : ''}`, tabindex: '0', role: 'button', 'aria-label': `${kinds[n.type]}: ${n.title}, line ${n.line}`, 'data-id': n.id });
       g.append(el('rect', { width: n.w, height: n.h, rx: n.type === 'return' ? 22 : 9 }));
       g.append(el('text', { x: 16, y: 23, class: 'node-kind' }, n.loop ? 'WHILE LOOP' : kinds[n.type]));
       wrap(n.title).forEach((line, i) => g.append(el('text', { x: 16, y: 46 + i * 18, class: 'node-title' }, line)));
@@ -153,10 +164,10 @@ label home:
   }
   function inspect(id) {
     const n = graph.nodes.find(n => n.id === id); if (!n) return;
-    selected = id; $('inspector').hidden = false;
+    selected = id; $('inspector').hidden = false; $('simulation').hidden = true;
     $('detail-type').textContent = kinds[n.type]; $('detail-title').textContent = n.title;
     $('detail-location').textContent = `${n.file} · line ${n.line}${n.end > n.line ? '–' + n.end : ''}`;
-    const notes = { return: 'Returns to the caller, or to the main menu when there is no caller.', call: 'The dashed connection enters the called label. “After return” shows where execution resumes if the call returns.', boundary: 'The loaded file ends here. Ren’Py may continue into another script file; no destination is inferred.', external: 'This label was referenced but not defined in your selection. Open all related story files together to connect it.', condition: 'Both possible paths are shown. This tool does not evaluate game variables.', menu: 'Each branch represents an available choice. Conditional options are marked on their connection.' };
+    const notes = { return: 'Returns to the caller, or to the main menu when there is no caller.', call: 'The dashed connection enters the called label. “After return” shows where execution resumes if the call returns.', boundary: 'The loaded file ends here. Ren’Py may continue into another script file; no destination is inferred.', external: 'This label was referenced but not defined in your selection. Open all related story files together to connect it.', condition: 'The map shows both possible paths. Use route simulation to evaluate this condition with your variables.', menu: 'Each branch represents an available choice. Conditional options are marked on their connection.', unsupported: 'Simulation pauses here. Review this code before making a manual override.' };
     $('detail-note').textContent = n.dynamic ? 'This destination is calculated at runtime and cannot be resolved statically.' : n.condition ? `Available when: ${n.condition}` : notes[n.type] || '';
     $('source').replaceChildren();
     const file = graph.files.find(f => f.name === n.file);
@@ -178,8 +189,83 @@ label home:
     for (const g of $('viewport').querySelectorAll('.node')) g.classList.toggle('selected', g.dataset.id === id);
     requestAnimationFrame(() => center(id));
   }
-  function center(id) { const n = view.nodes.find(n => n.id === id); if (!n) return; scale = Math.max(scale, .75); tx = $('canvas').clientWidth / 2 - (n.x + n.w / 2) * scale; ty = $('canvas').clientHeight / 2 - (n.y + n.h / 2) * scale; transform(); }
+  function center(id) { const n = view.nodes.find(n => n.id === id); if (!n) return; scale = Math.max(scale, .75);
+    const bounds = $('canvas').getBoundingClientRect();
+    const panel = !$('simulation').hidden ? $('simulation') : !$('inspector').hidden ? $('inspector') : null;
+    const width = panel && getComputedStyle(panel).position === 'absolute' ? Math.max(180, panel.getBoundingClientRect().left - bounds.left) : bounds.width;
+    tx = width / 2 - (n.x + n.w / 2) * scale; ty = $('canvas').clientHeight / 2 - (n.y + n.h / 2) * scale; transform(); }
   function closeDetail() { $('inspector').hidden = true; selected = null; render(); }
+  function variableText(variables) { return Object.entries(variables).map(([key, val]) => `${key} = ${RpySimulator.literal(val)}`).join('\n'); }
+  function resetSimulation() {
+    simulation = null; $('variables').value = variableText(initialState.variables); $('simulation-error').hidden = true;
+    refreshSimulation(false); render();
+  }
+  function refreshSimulation(updateEditor = true) {
+    const label = Object.keys(graph.labels).find(k => graph.labels[k] === $('entry').value);
+    $('simulation-label').textContent = label || 'Choose a starting label';
+    $('start-simulation').disabled = !label;
+    $('start-simulation').textContent = initialState.issues.length ? 'Start with manual values' : simulation ? 'Restart with these values' : 'Start simulation';
+    $('initialization-notes').hidden = !initialState.issues.length;
+    $('initialization-list').replaceChildren();
+    for (const issue of initialState.issues.slice(0, 30)) { const p = document.createElement('p'); p.textContent = `${issue.file}:${issue.line} — ${issue.message}`; $('initialization-list').append(p); }
+    if (initialState.issues.length) { const p = document.createElement('p'); p.textContent = 'Review and fill in the values you need. Starting accepts them as a manual starting state; it does not run these initializers.'; $('initialization-list').append(p); }
+    $('simulation-progress').hidden = !simulation; $('apply-variables').hidden = !simulation;
+    $('variables-label').textContent = simulation ? 'Current variables' : 'Starting variables';
+    if (!simulation) return;
+    if (updateEditor) $('variables').value = variableText(simulation.variables);
+    const n = simulation.nodes.get(simulation.pc);
+    const status = { ready: 'Ready for the next step', choice: 'Choose a path', blocked: 'Needs your input', ended: `Route finished · ${simulation.lastLabel}`, boundary: 'File boundary reached', limit: 'Step limit reached' }[simulation.status];
+    $('simulation-status').textContent = status + (simulation.problem ? '. ' + simulation.problem : '');
+    $('simulation-status').classList.toggle('blocked', ['blocked', 'limit', 'boundary'].includes(simulation.status));
+    $('simulation-location').textContent = n ? `${n.file}:${n.statements?.[simulation.offset]?.line || n.line} · ${n.title}` : `${simulation.steps} steps · ${simulation.trace.filter(t => t.assumption).length} manual override${simulation.trace.filter(t => t.assumption).length === 1 ? '' : 's'}`;
+    $('back-simulation').disabled = !simulation.history.length;
+    const stopped = ['ended', 'boundary'].includes(simulation.status) || simulation.steps >= 5000;
+    $('step-simulation').disabled = stopped || simulation.status === 'choice';
+    $('run-simulation').disabled = stopped || simulation.status === 'choice';
+    $('simulation-choices').replaceChildren(); $('simulation-overrides').replaceChildren();
+    function button(parent, title, action, disabled = false, detail = '') {
+      const b = document.createElement('button'); b.textContent = title; b.disabled = disabled;
+      if (detail) { const small = document.createElement('small'); small.textContent = detail; b.append(small); }
+      b.onclick = () => performSimulation(action); $(parent).append(b);
+    }
+    const customMenu = n?.menuSet || /\b(?:screen|nvl)\s*=/.test(n?.statement || '');
+    for (const c of simulation.menu()) {
+      button('simulation-choices', c.title, () => simulation.choose(c.id), !c.enabled || !!customMenu, c.unknown ? c.reason : c.condition ? `if ${c.condition}${c.enabled ? '' : ' · unavailable'}` : '');
+      if (c.unknown || customMenu) button('simulation-overrides', 'Assume available: ' + c.title, () => simulation.choose(c.id, true));
+    }
+    if (simulation.status === 'blocked' && n?.type === 'condition') {
+      button('simulation-overrides', 'Assume condition is True', () => simulation.resolveCondition(true));
+      button('simulation-overrides', 'Assume condition is False', () => simulation.resolveCondition(false));
+    }
+    if (simulation.status === 'blocked' && ['passage', 'unsupported', 'call'].includes(n?.type)) button('simulation-overrides', 'Skip this unsupported step (manual override)', () => simulation.skip());
+    $('simulation-history').replaceChildren();
+    for (const t of simulation.trace.slice(-30)) { const li = document.createElement('li'); li.classList.toggle('assumption', t.assumption); li.textContent = (t.assumption ? 'Manual · ' : '') + t.message; li.title = `${t.file}:${t.line}`; $('simulation-history').append(li); }
+    $('simulation-history').start = Math.max(1, simulation.trace.length - 29);
+  }
+  function performSimulation(action) {
+    try {
+      action(); $('simulation-error').hidden = true; refreshSimulation(); render(false);
+      const target = simulation?.pc || simulation?.trace.at(-1)?.id;
+      if (target) requestAnimationFrame(() => center(target));
+    } catch (error) { $('simulation-error').textContent = error.message; $('simulation-error').hidden = false; }
+  }
+  $('open-simulation').onclick = () => {
+    $('inspector').hidden = true; selected = null; $('simulation').hidden = false; refreshSimulation(false);
+    if (simulation?.pc) requestAnimationFrame(() => center(simulation.pc));
+  };
+  $('close-simulation').onclick = () => { $('simulation').hidden = true; };
+  $('start-simulation').onclick = () => performSimulation(() => {
+    const label = Object.keys(graph.labels).find(k => graph.labels[k] === $('entry').value);
+    const variables = RpySimulator.edit($('variables').value, initialState.variables);
+    simulation = new RpySimulator.Simulation(graph, label, variables);
+    if (initialState.issues.length) simulation.record(simulation.nodes.get(simulation.pc), 'Manual starting state accepted for unresolved initialization', true);
+    simulation.run();
+  });
+  $('apply-variables').onclick = () => performSimulation(() => simulation.setVariables($('variables').value));
+  $('step-simulation').onclick = () => performSimulation(() => simulation.step());
+  $('run-simulation').onclick = () => performSimulation(() => simulation.run());
+  $('back-simulation').onclick = () => performSimulation(() => simulation.back());
+  $('reset-simulation').onclick = resetSimulation;
   function load(files, example = false) {
     const parsed = RpyParser.parse(files); graph = parsed;
     $('inspector').hidden = true; selected = null;
@@ -192,6 +278,8 @@ label home:
     for (const [name, id] of Object.entries(graph.labels)) $('entry').add(new Option(name, id));
     const firstLabel = graph.labels.start || Object.values(graph.labels)[0];
     if (firstLabel) $('entry').value = firstLabel;
+    initialState = RpySimulator.initialize(graph); simulation = null;
+    $('variables').value = variableText(initialState.variables); $('simulation-error').hidden = true; refreshSimulation(false);
     $('warning-count').textContent = graph.warnings.length;
     $('warnings').replaceChildren();
     const notes = graph.warnings.length ? graph.warnings : [{ message: 'No unresolved destinations or unsupported navigation found. This is a static map, not a Ren’Py lint check.' }];
@@ -214,7 +302,7 @@ label home:
   $('open').onclick = () => $('files').click();
   $('files').onchange = e => { readFiles(e.target.files); e.target.value = ''; };
   $('example').onclick = () => { loadVersion++; load([{ name: 'lantern_path.rpy', text: sample }], true); };
-  $('entry').onchange = () => { $('inspector').hidden = true; selected = null; render(); };
+  $('entry').onchange = () => { $('inspector').hidden = true; selected = null; resetSimulation(); };
   $('dialogue').onchange = () => { $('inspector').hidden = true; selected = null; render(); };
   $('close-detail').onclick = closeDetail;
   $('zoom-in').onclick = () => zoom(1.2); $('zoom-out').onclick = () => zoom(1 / 1.2); $('fit').onclick = () => fit();

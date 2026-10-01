@@ -53,12 +53,12 @@
     return { value: text.slice(m[0].length, end).replace(/\\(["'\\])/g, '$1').replace(/\\n/g, ' '), rest: text.slice(end + q.length).trim() };
   }
   function parse(files) {
-    const nodes = [], edges = [], warnings = [], labels = new Map(), pending = [];
+    const nodes = [], edges = [], warnings = [], labels = new Map(), pending = [], initializers = [], initializationNotes = [];
     let counter = 0;
     const warn = (message, s, file) => warnings.push({ message, file, line: s?.line || 1 });
     function add(type, title, s, file, extra = {}) {
       if (nodes.length >= 3000) throw new Error('This selection exceeds 3,000 flow nodes. Load fewer story files at a time.');
-      const n = { id: 'n' + ++counter, type, title, file, line: s?.line || 1, end: s?.end || s?.line || 1, ...extra };
+      const n = { id: 'n' + ++counter, type, title, file, line: s?.line || 1, end: s?.end || s?.line || 1, statement: s?.text || '', scope: s?.scope || '', ...extra };
       nodes.push(n); return n.id;
     }
     const edge = (from, to, label = '', kind = 'flow') => { if (from && to) edges.push({ from, to, label, kind }); };
@@ -70,6 +70,8 @@
     function collect(items, scope, file) {
       for (const s of items) {
         s.scope = scope;
+        if (/^(?:default|define)\b/.test(s.text)) initializers.push({ text: s.text, file, line: s.line });
+        if (/^init\b/.test(s.text)) initializationNotes.push({ message: 'Initialization block needs manual starting values.', file, line: s.line });
         if (opaque.test(s.text)) continue;
         const label = s.text.match(/^label\s+([\p{L}_][\p{L}\p{N}_.]*|\.[\p{L}_][\p{L}\p{N}_]*)/u);
         const menu = s.text.match(/^menu\s+([\p{L}_][\p{L}\p{N}_.]*|\.[\p{L}_][\p{L}\p{N}_]*)\s*(?:\(|:)/u);
@@ -96,14 +98,29 @@
       let next = continuation;
       for (let i = items.length - 1; i >= 0; i--) {
         const s = items[i], t = s.text;
+        if (/^(?:python|translate)\b/.test(t)) {
+          const id = add('unsupported', t, s, file); edge(id, next); next = id; continue;
+        }
         if (opaque.test(t) || /^(?:define|default)\b/.test(t)) continue;
         if (/^label\s/.test(t)) { edge(s.node, build(s.children, next, file)); next = s.node; continue; }
         if (/^menu(?:\s|\(|:)/.test(t)) {
           const options = s.children.map(c => ({ s: c, str: stringValue(c.text) })).filter(c => c.str && /:\s*$/.test(c.str.rest));
           const caption = s.children.find(c => stringValue(c.text) && !/:\s*$/.test(c.text));
           const id = s.node || add('menu', caption ? stringValue(caption.text).value : 'Make a choice', s, file);
+          const menuNode = nodes.find(n => n.id === id);
+          menuNode.menuSet = s.children.find(c => /^set\s/.test(c.text))?.text.replace(/^set\s+/, '') || '';
+          menuNode.continuation = next;
           for (const option of options) {
-            const condition = option.str.rest.match(/\bif\s+([\s\S]*):\s*$/)?.[1]?.trim();
+            // Find an if-clause outside quoted menu arguments.
+            const rest = option.str.rest; let depth = 0, quote = '', condition = '';
+            for (let p = 0; p < rest.length; p++) {
+              const char = rest[p];
+              if (quote) { if (char === '\\') p++; else if (char === quote) quote = ''; }
+              else if (char === '"' || char === "'") quote = char;
+              else if (char === '(' || char === '[' || char === '{') depth++;
+              else if (char === ')' || char === ']' || char === '}') depth--;
+              else if (!depth && /^if\s/.test(rest.slice(p)) && (p === 0 || /\s/.test(rest[p - 1]))) { condition = rest.slice(p + 2).replace(/:\s*$/, '').trim(); break; }
+            }
             const c = add('choice', option.str.value, option.s, file, { condition: condition || '', end: option.s.children.at(-1)?.end || option.s.end });
             edge(id, c, condition ? `if ${condition}` : '', 'choice');
             edge(c, build(option.s.children, next, file));
@@ -132,7 +149,7 @@
           const call = t.startsWith('call '), dynamic = /^(?:jump|call)\s+expression\b/.test(t);
           const target = t.match(/^(?:jump|call)\s+([^\s(]+)/)?.[1];
           const id = add(call ? 'call' : 'jump', t, s, file, { dynamic });
-          if (dynamic) warn('Calculated destination: cannot resolve without running Python.', s, file);
+          if (dynamic) warn('Calculated destination: unresolved in the static map; simulation can try supported expressions.', s, file);
           else pending.push({ id, target: resolve(target || '', s.scope), s, file, kind: call ? 'call' : 'jump' });
           if (call) {
             if (s.after) { edge(s.after, next); next = s.after; }
@@ -146,7 +163,7 @@
         const special = /^(?:label|menu|if|elif|else|while|jump|call|return|init|python|screen|transform|image|style|translate|testcase|layeredimage|define|default)\b/;
         while (i > 0 && !special.test(items[i - 1].text) && !items[i - 1].children.length) group.unshift(items[--i]);
         const dialogue = group.map(x => stringValue(x.text) || stringValue(x.text.replace(/^[\w.]+(?:\s+\w+)*\s+(?=["'])/, ''))).find(Boolean);
-        const id = add('passage', dialogue?.value || (group.length === 1 ? group[0].text : `${group.length} actions`), group[0], file, { end: group.at(-1).end, count: group.length });
+        const id = add('passage', dialogue?.value || (group.length === 1 ? group[0].text : `${group.length} actions`), group[0], file, { end: group.at(-1).end, count: group.length, statements: group.map(item => ({ text: item.text, line: item.line, hasBlock: !!item.children.length })) });
         for (const item of group) {
           if (item.children.length) warn(`Block “${item.text.split(/\s/)[0]}” is not analyzed.`, item, file);
           if (/\brenpy\.(?:jump|call|call_in_new_context|set_return_stack|pop_call)\s*\(/.test(item.text) || /^call\s+screen\b/.test(item.text)) warn('Python or screen-driven navigation may add routes not shown in the graph.', item, file);
@@ -172,7 +189,7 @@
       edge(p.id, target, p.kind === 'call' ? 'Call' : '', p.kind);
     }
     const used = new Set(edges.flatMap(e => [e.from, e.to]));
-    return { nodes: nodes.filter(n => n.type !== 'boundary' || used.has(n.id)), edges, labels: Object.fromEntries(labels), warnings, files: parsed.map(({ name, text, lines }) => ({ name, text, lines })) };
+    return { nodes: nodes.filter(n => n.type !== 'boundary' || used.has(n.id)), edges, labels: Object.fromEntries(labels), warnings, initializers, initializationNotes, files: parsed.map(({ name, text, lines }) => ({ name, text, lines })) };
   }
   root.RpyParser = { parse, logicalLines };
   if (typeof module !== 'undefined') module.exports = root.RpyParser;
