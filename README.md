@@ -27,7 +27,7 @@ Open [Branchlight](https://ey4o.github.io/Branchlight/) and drag your `.rpy` fil
 
 Use **Explore from** to choose a starting label. Drag the map to move around, scroll to zoom, and click any node to view the corresponding code. **Fit map** brings the full diagram into view.
 
-The included example story lets you explore the controls before loading your own project.
+The included example story lets you explore the controls before loading your own project. Use **Appearance** in the top bar to choose **Light**, **Dark**, or **System theme**. Your preference is remembered in that browser when local storage is available.
 
 ## Simulating a route
 
@@ -63,7 +63,11 @@ Select **Explore example project** in the sidebar to try it. For the JSON format
 
 Download or clone this repository, then open `index.html` in your browser. On macOS, you can also double-click `Open Branchlight.command`.
 
-No installation or build step is required. Once downloaded, Branchlight works offline.
+No installation or build step is required. Once downloaded, Branchlight works offline. The `.command` launcher opens the local files in your default browser; it does not need a local server.
+
+Branchlight is a web app, not a packaged native Mac application. On macOS Sonoma 14 or later, open the [published site](https://ey4o.github.io/Branchlight/) in Safari, choose **File → Add to Dock**, and name it Branchlight. It opens in its own window from the Dock. See [Apple’s instructions](https://support.apple.com/en-us/104996).
+
+The Dock web app loads the hosted site and needs a connection to load it; it is not an offline installation. Use the downloaded folder for offline use. Avoid adding a temporary localhost preview to the Dock unless you intend to keep its server running.
 
 ## Understanding the map
 
@@ -89,6 +93,7 @@ Branchlight is a static site with no backend or external runtime dependencies. T
 ```text
 index.html
 style.css
+theme.js
 parser.js
 simulator.js
 project-bundle.js
