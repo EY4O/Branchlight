@@ -34,6 +34,12 @@ In the **Map**, use **From** to choose a starting label. Drag to move around, sc
 
 The included example story lets you explore before loading your own project. The three buttons at the top right switch between **System**, **Light**, and **Dark** appearance. Your preference is remembered in that browser when local storage is available.
 
+## Requirements to reach a scene
+
+Click any label or node to see **To reach this** in the side panel. It lists what every route from `start` needs: the conditions that must be true and the choices that must be made. Each condition shows the choices and scenes that change its variables, so you can see how to meet it. For labels, **Ways in** lists each entrance and what it adds.
+
+This is a static reading: conditions are compared as written, not evaluated. Branchlight can tell that a scene needs `mira_trust >= 3` and which choices raise it, but not whether one playthrough can make all of them. Use route simulation to check a particular path. A scene that needs both a condition and its opposite on every route is listed on the **Problems** tab.
+
 ## Simulating a route
 
 Choose a label under **From** in the map toolbar, then select **Simulate route**. Branchlight fills in the starting variables it can read from `default` and `define` statements. Edit those values and select **Start simulation** to advance to the first choice.

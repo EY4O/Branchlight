@@ -318,6 +318,33 @@ pre { margin: 0; padding: 10px 0; border: 1px solid var(--rule); border-radius: 
 .var-chip.set { border-color: var(--ink-3); }
 .var-chip.check { border-color: var(--amber-line); }
 
+/* Requirements: what every route from start needs to reach the selected node */
+.reqs { display: grid; gap: 8px; padding: 12px 0 2px; border-top: 1px solid var(--rule); }
+.reqs-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.reqs-head .section-title { margin: 0; }
+.req-list, .ways { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.req { border: 1px solid var(--rule); border-radius: 4px; background: var(--sheet); overflow: hidden; }
+.req.condition { border-color: var(--amber-line); }
+.req-line { display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 7px 10px; border: 0; background: none; text-align: left; font-size: 13px; color: var(--ink); }
+.req-line:hover { background: var(--sheet-2); }
+.req.condition .req-line { background: var(--amber-wash); }
+.req.condition .req-line:hover { background: color-mix(in srgb, var(--amber-wash) 80%, var(--amber-line)); }
+.req-line code { font-size: 12.5px; color: var(--ink); overflow-wrap: anywhere; }
+.req-kind { flex: none; min-width: 48px; font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+.req.condition .req-kind { color: var(--amber); }
+.req-how { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 6px; padding: 7px 10px 8px; border-top: 1px solid var(--rule); font-size: 12px; }
+.req-var { padding: 0; border: 0; background: none; font: 700 12px var(--mono); color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
+.req-change { display: inline-flex; align-items: baseline; gap: 5px; padding: 1px 6px; border: 1px solid var(--rule); border-radius: 3px; background: var(--sheet); font-size: 12px; color: var(--ink-2); text-align: left; }
+.req-change:hover { border-color: var(--ink-3); color: var(--ink); }
+.req-change .delta { font: 700 12px var(--mono); color: var(--ink); }
+.req-more { padding: 2px 2px 0; }
+.req-alert { padding: 9px 11px; border: 1px solid var(--stamp); border-radius: 4px; background: var(--stamp-wash); color: var(--ink); font-size: 13px; }
+.ways-title { margin: 6px 0 0; }
+.ways button { display: grid; gap: 2px; width: 100%; padding: 7px 10px; border: 1px solid var(--rule); border-radius: 4px; background: var(--sheet); text-align: left; }
+.ways button:hover { border-color: var(--ink-3); background: var(--sheet-2); }
+.way-from { font-size: 13px; font-weight: 500; color: var(--ink); }
+.way-needs { font: 12px var(--mono); color: var(--amber); overflow-wrap: anywhere; }
+.way-needs.none { font-family: var(--sans); color: var(--ink-3); }
 #simulation-status { padding: 10px 12px; border-radius: 4px; background: var(--action-wash); font-size: 13.5px; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; }
 #simulation-status.blocked { background: var(--amber-wash); color: var(--ink); }
 #simulation-progress { display: grid; gap: 12px; }

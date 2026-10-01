@@ -23,6 +23,17 @@
     if (v === 'None') return 'empty';
     return 'other';
   }
+  // Readable opposite of a condition: flip a single comparison or a bare flag, otherwise wrap it in not (...).
+  function negate(expr) {
+    const t = expr.trim(), flip = { '>=': '<', '<=': '>', '==': '!=', '!=': '==', '>': '<=', '<': '>=' };
+    if (/^not\s+[\w.]+$/.test(t)) return t.replace(/^not\s+/, '');
+    if (/^[\w.]+$/.test(t)) return 'not ' + t;
+    const m = !/\b(?:and|or)\b/.test(stripStrings(t)) && t.match(/^([\w.]+(?:\[[^\]]*\])?)\s*(>=|<=|==|!=|>|<)\s*([^<>=!]+)$/);
+    if (m) return `${m[1]} ${flip[m[2]]} ${m[3].trim()}`;
+    const n = !/\b(?:and|or)\b/.test(stripStrings(t)) && t.match(/^(.+?)\s+(not\s+in|in)\s+(.+)$/);
+    if (n) return `${n[1]} ${n[2] === 'in' ? 'not in' : 'in'} ${n[3]}`;
+    return `not (${t})`;
+  }
   // A choice line is a quoted caption followed by an optional "if" clause and a colon.
   function choiceCondition(text) {
     if (!/^[rRuUbBfF]{0,2}["']/.test(text) || !/:\s*$/.test(text)) return '';
@@ -47,6 +58,9 @@
       return best || labelAt(file, line);
     };
     for (const n of graph.nodes) { const f = fileByName.get(n.file); if (!f) continue; if (n.type === 'label') f.labels++; if (n.type === 'choice') f.choices++; }
+    // The innermost player choice whose block contains a line, so a change can be credited to the choice that causes it.
+    const choiceNodes = graph.nodes.filter(n => n.type === 'choice');
+    const choiceAt = (file, line) => { let best = null; for (const c of choiceNodes) if (c.file === file && c.line < line && line <= c.end && (!best || c.line > best.line)) best = c; return best; };
 
     // Reachability from the start label follows every static edge.
     const reachable = new Set(), start = graph.labels.start;
@@ -88,7 +102,7 @@
         const text = s.text;
         if (pythonIndent >= 0 && s.indent <= pythonIndent) pythonIndent = -1;
         const inPython = pythonIndent >= 0;
-        const where = () => { const node = nodeAt(f.name, s.line), label = labelAt(f.name, s.line); return { file: f.name, line: s.line, text, node: node?.id || null, label: label?.title || null, labelId: label?.id || null, position: ((fileByName.get(f.name)?.offset || 0) + s.line - 1) / totalLines }; };
+        const where = () => { const node = nodeAt(f.name, s.line), label = labelAt(f.name, s.line), choice = choiceAt(f.name, s.line); return { file: f.name, line: s.line, text, node: node?.id || null, label: label?.title || null, labelId: label?.id || null, choice: choice?.title || null, choiceId: choice?.id || null, position: ((fileByName.get(f.name)?.offset || 0) + s.line - 1) / totalLines }; };
         if (!inPython && python.test(text)) { pythonIndent = s.indent; continue; }
         const decl = !inPython && text.match(/^(default|define)\s+(?:-?\d+\s+)?([A-Za-z_][\w.]*)\s*=\s*([\s\S]+)$/);
         if (decl) {
@@ -150,10 +164,54 @@
       else if (!v.defs.length && v.sets.some(s => s.via !== 'python')) problem('warning', 'No default', `“${v.name}” is assigned but has no default statement, so saves made earlier will not have it.`, v.sets[0]);
       else if (!v.checks.length) problem('note', 'Never checked', `“${v.name}” is ${v.sets.length ? 'changed' : 'declared'} but no condition reads it.`, v.defs[0] || v.sets[0]);
     }
+    // Requirements: what every route from start must pass through to reach each node.
+    const requirements = new Map();
+    if (start) {
+      const position = n => (fileByName.get(n.file)?.offset || 0) + n.line;
+      const cond = (expr, negated, n) => ({ key: (negated ? '-' : '+') + expr.replace(/\s+/g, ' ').trim(), type: 'condition', expr, negated, text: negated ? negate(expr) : expr, node: n.id, file: n.file, line: n.line, order: position(n) });
+      const guards = e => {
+        if (e.kind === 'choice') { const c = byId.get(e.to); if (!c || c.type !== 'choice') return []; const g = [{ key: 'c:' + c.id, type: 'choice', text: c.title, node: c.id, file: c.file, line: c.line, order: position(c) }]; if (c.condition) g.push(cond(c.condition, false, c)); return g; }
+        const n = byId.get(e.from);
+        if (e.kind === 'condition' && n?.type === 'condition') return /^Yes/.test(e.label) ? [cond(n.title, false, n)] : e.label === 'No' ? [cond(n.title, true, n)] : [];
+        return [];
+      };
+      // A must-analysis: each node keeps only the guards shared by every way in, iterated until nothing shrinks.
+      const must = new Map([[start, new Map()]]), work = [start];
+      while (work.length) {
+        const id = work.pop(), current = must.get(id);
+        for (const e of out.get(id) || []) {
+          const candidate = new Map(current); for (const g of guards(e)) candidate.set(g.key, g);
+          const old = must.get(e.to);
+          if (old) { const next = new Map([...old].filter(([k]) => candidate.has(k))); if (next.size === old.size) continue; must.set(e.to, next); }
+          else must.set(e.to, candidate);
+          work.push(e.to);
+        }
+      }
+      const incoming = new Map(); for (const e of graph.edges) { if (!incoming.has(e.to)) incoming.set(e.to, []); incoming.get(e.to).push(e); }
+      for (const [id, set] of must) {
+        const n = byId.get(id), always = [...set.values()].sort((a, b) => a.order - b.order);
+        const conflict = always.find(g => g.type === 'condition' && set.has((g.negated ? '+' : '-') + g.key.slice(1)));
+        const entry = { always, impossible: conflict ? conflict.expr : null, entrances: [] };
+        if (n.type === 'label') {
+          // Ways in: each entrance keeps the guards it adds beyond what every route needs.
+          const seen = new Set();
+          for (const e of incoming.get(id) || []) {
+            if (!must.has(e.from)) continue;
+            const p = byId.get(e.from), from = p.type === 'label' ? p : labelAt(p.file, p.line);
+            const extra = [...must.get(e.from).values(), ...guards(e)].filter(g => !set.has(g.key)).sort((a, b) => a.order - b.order);
+            const key = (from?.id || p.id) + '|' + e.kind + '|' + extra.map(g => g.key).join(',');
+            if (seen.has(key)) continue; seen.add(key);
+            entry.entrances.push({ from: from?.title || p.title, fromId: from?.id || p.id, node: p.id, kind: e.kind, extra });
+          }
+        }
+        requirements.set(id, entry);
+        if (n.type === 'label' && conflict) problem('error', 'Impossible route', `Every route into “${n.title}” needs both ${conflict.expr} and ${negate(conflict.expr)}, so it can never be reached.`, { file: n.file, line: n.line, node: n.id, label: n.title });
+      }
+    }
     const rank = { error: 0, warning: 1, note: 2 };
     problems.sort((a, b) => rank[a.severity] - rank[b.severity] || a.category.localeCompare(b.category) || (a.file || '').localeCompare(b.file || '') || (a.line || 0) - (b.line || 0));
-    return { files, labels, links, variables, problems, characters, reachable, totalLines, start: start || null, nodeAt, labelAt };
+    return { files, labels, links, variables, problems, characters, reachable, requirements, totalLines, start: start || null, nodeAt, labelAt };
   }
-  root.BranchlightIndex = { build, identifiers, kindOf };
+  root.BranchlightIndex = { build, identifiers, kindOf, negate };
   if (typeof module !== 'undefined') module.exports = root.BranchlightIndex;
 })(typeof window === 'undefined' ? globalThis : window);

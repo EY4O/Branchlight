@@ -247,6 +247,7 @@ label epilogue:
       if (set || check) here.push(h('button', { class: `var-chip ${set ? 'set' : 'check'}`, title: `${set ? 'Changed' : 'Checked'} here. Open in Variables.`, onclick: () => showVariable(v.name) }, v.name));
     }
     $('detail-vars').replaceChildren(...(here.length ? [h('p', { class: 'section-title' }, 'Variables here'), h('div', { class: 'var-chips' }, here)] : []));
+    renderRequirements(n);
     $('source').replaceChildren();
     const file = graph.files.find(f => f.name === n.file);
     if (file) {
@@ -262,6 +263,46 @@ label epilogue:
     $('connections').replaceChildren(...outgoing.map(e => { const target = graph.nodes.find(v => v.id === e.to); return h('button', { onclick: () => { inspect(e.to); } }, icon('arrow'), h('span', {}, e.label ? h('span', { class: 'via' }, e.label + ' → ') : null, target.title)); }));
     for (const g of $('viewport').querySelectorAll('.node')) g.classList.toggle('selected', g.dataset.id === id);
     requestAnimationFrame(() => center(id));
+  }
+  // "To reach this": what every route from start needs, the ways in, and the choices that move each variable involved.
+  function describeChange(u) {
+    const v = (u.value || '').trim(), change = u.op === '+=' ? `+${v}` : u.op === '-=' ? `−${v}` : u.op === 'toggle' ? 'toggled' : u.op === '=' ? `= ${v}` : `${u.op} ${v}`;
+    return { change: clip(change, 14), where: u.choice ? `“${clip(u.choice, 34)}”` : u.label ? `in ${u.label}` : `${u.file}:${u.line}` };
+  }
+  function howToMeet(g) {
+    const rows = [];
+    for (const name of BranchlightIndex.identifiers(g.expr)) {
+      const v = index.variables.find(x => x.name === name) || index.variables.find(x => x.name === name.split('.')[0]);
+      if (!v || rows.some(r => r.dataset.var === v.name)) continue;
+      const changes = v.sets.slice(0, 6).map(u => { const d = describeChange(u); return h('button', { class: 'req-change', title: `${u.file}:${u.line}`, onclick: () => showNode(u.node || u.labelId) }, h('span', { class: 'delta' }, d.change), d.where); });
+      rows.push(h('div', { class: 'req-how', 'data-var': v.name }, h('button', { class: 'req-var', title: 'Open in Variables', onclick: () => showVariable(v.name) }, v.name), h('span', { class: 'note' }, 'changed by'),
+        changes.length ? changes : h('span', { class: 'note' }, v.declared ? `never changed after ${v.declared}` : 'never set'), v.sets.length > 6 ? h('span', { class: 'note' }, `${v.sets.length - 6} more in Variables`) : null));
+    }
+    return rows;
+  }
+  function guardItem(g) {
+    if (g.type === 'choice') return h('li', { class: 'req choice' }, h('button', { class: 'req-line', onclick: () => showNode(g.node) }, h('span', { class: 'req-kind' }, 'Choose'), h('span', {}, `“${g.text}”`)));
+    return h('li', { class: 'req condition' }, h('button', { class: 'req-line', onclick: () => showNode(g.node) }, h('span', { class: 'req-kind' }, 'Needs'), h('code', {}, g.text)), ...howToMeet(g));
+  }
+  const guardText = g => g.type === 'choice' ? `“${clip(g.text, 28)}”` : g.text;
+  function renderRequirements(n) {
+    const box = $('detail-reqs'), r = index.requirements.get(n.id), head = h('div', { class: 'reqs-head' }, h('p', { class: 'section-title' }, 'To reach this'), index.start ? h('span', { class: 'note' }, 'every route from start') : null);
+    if (!index.start) return box.replaceChildren(head, h('p', { class: 'note' }, 'Add a start label to see what each scene requires.'));
+    if (!r) return box.replaceChildren(head, h('p', { class: 'note' }, n.type === 'external' ? 'This label is not in the loaded files.' : 'Not reached from start by any jump, call, or fall-through. Screens or Python may still reach it.'));
+    const conditions = r.always.filter(g => g.type === 'condition'), choices = r.always.filter(g => g.type === 'choice'), parts = [head];
+    if (r.impossible) parts.push(h('p', { class: 'req-alert' }, `No route can get here: it needs both ${r.impossible} and ${BranchlightIndex.negate(r.impossible)}.`));
+    if (!conditions.length && !choices.length) parts.push(h('p', { class: 'note' }, n.id === graph.labels.start ? 'This is where the story starts.' : 'Nothing: every route from start can reach this without a condition or a particular choice.'));
+    if (conditions.length) parts.push(h('ul', { class: 'req-list' }, conditions.map(guardItem)));
+    // The latest choices matter most; earlier ones collapse to a count.
+    if (choices.length) parts.push(h('ul', { class: 'req-list' }, choices.length > 4 ? h('li', { class: 'req-more note' }, `${choices.length - 4} earlier ${choices.length - 4 === 1 ? 'choice' : 'choices'} also required`) : null, choices.slice(-4).map(guardItem)));
+    if (r.entrances.length > 1 || r.entrances.some(w => w.extra.length)) {
+      const verb = { call: 'Called from', flow: 'Falls in from', jump: 'From' };
+      parts.push(h('p', { class: 'section-title ways-title' }, `Ways in · ${r.entrances.length}`), h('ul', { class: 'ways' }, r.entrances.slice(0, 12).map(w => h('li', {},
+        h('button', { onclick: () => showNode(w.node), title: 'Show this entrance on the map' }, h('span', { class: 'way-from' }, `${verb[w.kind] || 'From'} ${w.from}`),
+          h('span', { class: `way-needs${w.extra.length ? '' : ' none'}` }, w.extra.length ? clip(w.extra.map(guardText).join(' · '), 90) : 'nothing extra'))))),
+        r.entrances.length > 12 ? h('p', { class: 'note' }, `${r.entrances.length - 12} more ways in.`) : null);
+    }
+    box.replaceChildren(...parts.filter(Boolean));
   }
   function closePanels() { $('inspector').hidden = true; $('simulation').hidden = true; selected = null; for (const g of $('viewport').querySelectorAll('.node.selected')) g.classList.remove('selected'); }
 
