@@ -17,6 +17,7 @@ Branchlight turns `.rpy` scripts into an interactive flowchart, making it easier
 - Show dialogue and actions alongside branching points.
 - Click a node to inspect its source.
 - Identify missing labels and destinations that require runtime information.
+- Import project bundles with campaign maps, saved checkpoints, and event availability explanations.
 
 Your scripts stay in your browser. Branchlight does not upload or modify them. Route simulation interprets a limited set of statements locally; it never runs Python or custom game code.
 
@@ -50,6 +51,14 @@ If a value is missing or a statement is unsupported, simulation pauses. You can 
 
 This follows one route at a time; it does not automatically enumerate every combination of choices and variables.
 
+## Project maps and checkpoints
+
+For games with custom progression rules, **Open project bundle** loads an event map and checkpoints exported from the game. Select a campaign and checkpoint, then click an event to see its status and why it is available or blocked. Filter by chapter or act with **Group**.
+
+Recorded checkpoints and hypothetical scenarios are labeled separately. These are read-only snapshots: re-export after changing the game or its state. The bundle viewer does not run custom game code or recalculate availability.
+
+Select **Explore example project** in the sidebar to try it. For the JSON format and guidance on writing a game-specific exporter, see [Project bundles](docs/project-bundles.md). Exporters and private game data stay with their respective projects; Branchlight has no game-specific rules.
+
 ## Running locally
 
 Download or clone this repository, then open `index.html` in your browser. On macOS, you can also double-click `Open Branchlight.command`.
@@ -82,6 +91,8 @@ index.html
 style.css
 parser.js
 simulator.js
+project-bundle.js
+project-view.js
 app.js
 ```
 
@@ -89,9 +100,9 @@ A GitHub Pages deployment workflow is also included in `.github/workflows/pages.
 
 ## Development
 
-The interface uses plain HTML, CSS, and JavaScript. The script parser lives in `parser.js`, the expression interpreter and route simulator in `simulator.js`, and the diagram and browser interactions in `app.js`.
+The interface uses plain HTML, CSS, and JavaScript. The script parser lives in `parser.js`, the expression interpreter and route simulator in `simulator.js`, and the script diagram and browser interactions in `app.js`. Project bundle validation lives in `project-bundle.js`, with its interface in `project-view.js`.
 
-Run the parser and simulator tests with Node.js 22 or newer:
+Run the parser, simulator, and project-bundle tests with Node.js 22 or newer:
 
 ```sh
 node --test tests/*.test.cjs

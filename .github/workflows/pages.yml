@@ -25,11 +25,13 @@ jobs:
           node --check parser.js
           node --check app.js
           node --check simulator.js
+          node --check project-bundle.js
+          node --check project-view.js
           node --test tests/*.test.cjs
       - name: Stage the public app only
         run: |
           mkdir -p _site
-          cp index.html style.css parser.js simulator.js app.js _site/
+          cp index.html style.css parser.js simulator.js project-bundle.js project-view.js app.js _site/
       - uses: actions/upload-pages-artifact@v4
         with:
           path: _site

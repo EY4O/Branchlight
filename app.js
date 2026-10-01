@@ -47,7 +47,7 @@ label home:
   let messageTimer, loadVersion = 0;
   let simulation = null, initialState = { variables: {}, issues: [] };
   function el(tag, attrs = {}, text) { const e = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (text !== undefined) e.textContent = text; return e; }
-  function notice(message) { $('message').textContent = message; $('message').hidden = false; clearTimeout(messageTimer); messageTimer = setTimeout(() => $('message').hidden = true, 14000); }
+  function notice(message) { $('import-message').textContent = message; $('import-message').hidden = false; clearTimeout(messageTimer); messageTimer = setTimeout(() => $('import-message').hidden = true, 14000); }
   function transform() { $('viewport').setAttribute('transform', `translate(${tx},${ty}) scale(${scale})`); $('zoom').textContent = Math.round(scale * 100) + '%'; }
   function zoom(factor, x = $('canvas').clientWidth / 2, y = $('canvas').clientHeight / 2) { const old = scale; scale = Math.max(.08, Math.min(2.2, scale * factor)); tx = x - (x - tx) * scale / old; ty = y - (y - ty) * scale / old; transform(); }
   function fit(readable = false) {
@@ -268,6 +268,7 @@ label home:
   $('reset-simulation').onclick = resetSimulation;
   function load(files, example = false) {
     const parsed = RpyParser.parse(files); graph = parsed;
+    if (window.BranchlightProject) BranchlightProject.close();
     $('inspector').hidden = true; selected = null;
     $('mode').textContent = example ? 'Example' : 'Loaded';
     $('project').textContent = example ? 'The lantern path' : files.length === 1 ? files[0].name.replace(/\.rpy$/i, '') : `${files.length} story files`;
@@ -285,20 +286,28 @@ label home:
     const notes = graph.warnings.length ? graph.warnings : [{ message: 'No unresolved destinations or unsupported navigation found. This is a static map, not a Ren’Py lint check.' }];
     for (const warning of notes.slice(0, 100)) { const p = document.createElement('p'); p.textContent = (warning.file ? `${warning.file}:${warning.line} — ` : '') + warning.message; $('warnings').append(p); }
     if (notes.length > 100) { const p = document.createElement('p'); p.textContent = `${notes.length - 100} more notes. Load fewer files to narrow the analysis.`; $('warnings').append(p); }
-    $('message').hidden = true; render();
+    $('import-message').hidden = true; render();
   }
   async function readFiles(list) {
     const files = Array.from(list), version = ++loadVersion;
     if (!files.length) return;
-    if (files.some(f => !/\.rpy$/i.test(f.name))) { notice('Please choose .rpy source files. Compiled .rpyc files cannot be read.'); return; }
+    const projectFile = files.length === 1 && /\.json$/i.test(files[0].name);
+    if (!projectFile && files.some(f => !/\.rpy$/i.test(f.name))) { notice('Choose .rpy source files together, or one project bundle (.json). Compiled .rpyc files cannot be read.'); return; }
     if (files.reduce((sum, f) => sum + f.size, 0) > 12 * 1024 * 1024) { notice('Please load fewer files at once (up to 12 MB).'); return; }
     try {
+      if (projectFile) {
+        const text = await files[0].text(); if (version !== loadVersion) return;
+        BranchlightProject.open(BranchlightBundle.parse(text)); $('import-message').hidden = true; return;
+      }
       const content = await Promise.all(files.map(async f => ({ name: f.webkitRelativePath || f.name, text: await f.text() })));
       const names = new Set(); for (const f of content) { const base = f.name; let i = 2; while (names.has(f.name)) f.name = `${base} (${i++})`; names.add(f.name); }
       if (version !== loadVersion) return;
       load(content);
-    } catch (error) { notice(`Could not build this map: ${error.message} The previous map is still available.`); }
+    } catch (error) { if (version === loadVersion) notice(`Could not build this map: ${error.message} The previous map is still available.`); }
   }
+  document.addEventListener('branchlight:cancel-import', () => { loadVersion++; $('import-message').hidden = true; });
+  $('open-bundle').onclick = () => $('bundle-files').click();
+  $('bundle-files').onchange = e => { readFiles(e.target.files); e.target.value = ''; };
   $('open').onclick = () => $('files').click();
   $('files').onchange = e => { readFiles(e.target.files); e.target.value = ''; };
   $('example').onclick = () => { loadVersion++; load([{ name: 'lantern_path.rpy', text: sample }], true); };
@@ -325,7 +334,7 @@ label home:
   // Optional browser agent access uses the same state as the visible controls.
   if (document.modelContext?.registerTool) {
     for (const tool of [{ name: 'read_branch_map', description: 'Read the currently loaded static RenPy branch map and analysis notes.', inputSchema: { type: 'object', properties: {}, additionalProperties: false }, annotations: { readOnlyHint: true, untrustedContentHint: true }, execute: () => ({ labels: graph.labels, nodes: graph.nodes, edges: graph.edges, warnings: graph.warnings }) },
-      { name: 'focus_story_label', description: 'Focus the visible diagram on a label in the currently loaded files.', inputSchema: { type: 'object', properties: { label: { type: 'string' } }, required: ['label'], additionalProperties: false }, annotations: { readOnlyHint: false, untrustedContentHint: true }, execute: ({ label }) => { if (!Object.hasOwn(graph.labels, label)) throw new Error('Label is not loaded.'); $('entry').value = graph.labels[label]; $('entry').onchange(); return { focused: label, visibleNodes: view.nodes.length }; } }]) {
+      { name: 'focus_story_label', description: 'Focus the visible diagram on a label in the currently loaded files.', inputSchema: { type: 'object', properties: { label: { type: 'string' } }, required: ['label'], additionalProperties: false }, annotations: { readOnlyHint: false, untrustedContentHint: true }, execute: ({ label }) => { if (!Object.hasOwn(graph.labels, label)) throw new Error('Label is not loaded.'); if (window.BranchlightProject) BranchlightProject.close(); $('entry').value = graph.labels[label]; $('entry').onchange(); return { focused: label, visibleNodes: view.nodes.length }; } }]) {
       try { Promise.resolve(document.modelContext.registerTool(tool)).catch(() => {}); } catch (_) { /* Optional API. */ }
     }
   }
