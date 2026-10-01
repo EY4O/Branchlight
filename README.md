@@ -40,6 +40,14 @@ Click any label or node to see **To reach this** in the side panel. It lists wha
 
 This is a static reading: conditions are compared as written, not evaluated. Branchlight can tell that a scene needs `mira_trust >= 3` and which choices raise it, but not whether one playthrough can make all of them. Use route simulation to check a particular path. A scene that needs both a condition and its opposite on every route is listed on the **Problems** tab.
 
+## Playing through the story
+
+Open the **Play** tab, choose where to start under **From**, and select **Start** to read the story as a player would. The script page below shows narration and dialogue, with speaker names taken from your `Character()` definitions. The minimap above follows your place in the story and lights the route you've taken.
+
+Press **Space** or **Enter** to continue, a number key to pick a choice, and **Backspace** to go back. Choices you can't take are shown with what they need; **Choose anyway** takes one as a recorded manual override. Variables your playthrough has changed appear in the bar, with the latest change highlighted. **Starting values** lets you begin with different values, and **Stage directions** shows or hides `scene`, `show`, `play`, and `$` lines.
+
+Play uses the same interpreter as route simulation, so it pauses on Python, screens, and other unsupported code and offers to skip or assume. Images and audio are not shown.
+
 ## Simulating a route
 
 Choose a label under **From** in the map toolbar, then select **Simulate route**. Branchlight fills in the starting variables it can read from `default` and `define` statements. Edit those values and select **Start simulation** to advance to the first choice.
@@ -113,6 +121,7 @@ project-bundle.js
 pan-zoom.js
 project-view.js
 views.js
+play.js
 app.js
 ```
 
@@ -120,7 +129,7 @@ A GitHub Pages deployment workflow is also included in `.github/workflows/pages.
 
 ## Development
 
-The interface uses plain HTML, CSS, and JavaScript. The script parser lives in `parser.js`, the expression interpreter and route simulator in `simulator.js`, the project-wide index of files, labels, variables, and problems in `story-index.js`, the Overview, Variables, and Problems views in `views.js`, and the map, simulator panel, and loading in `app.js`. Visual design decisions are recorded in `DESIGN.md`. The Archivo and Courier Prime fonts in `fonts/` are included under the SIL Open Font License (see the `OFL-*.txt` files). Project bundle validation lives in `project-bundle.js`, with its interface in `project-view.js`.
+The interface uses plain HTML, CSS, and JavaScript. The script parser lives in `parser.js`, the expression interpreter and route simulator in `simulator.js`, the project-wide index of files, labels, variables, and problems in `story-index.js`, the Overview, Variables, and Problems views in `views.js`, Play mode in `play.js`, and the map, simulator panel, and loading in `app.js`. Visual design decisions are recorded in `DESIGN.md`. The Archivo and Courier Prime fonts in `fonts/` are included under the SIL Open Font License (see the `OFL-*.txt` files). Project bundle validation lives in `project-bundle.js`, with its interface in `project-view.js`.
 
 Run the parser, simulator, and project-bundle tests with Node.js 22 or newer:
 

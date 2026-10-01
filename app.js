@@ -102,7 +102,7 @@ label epilogue:
     jump credits
 ` }];
   const kinds = { label: 'Label', menu: 'Choice point', choice: 'Player choice', condition: 'Condition', passage: 'Story beat', call: 'Call', jump: 'Jump', return: 'Return', external: 'Missing label', boundary: 'End of file', unsupported: 'Unsupported code' };
-  const viewNames = ['overview', 'map', 'variables', 'problems', 'checkpoints'];
+  const viewNames = ['overview', 'map', 'play', 'variables', 'problems', 'checkpoints'];
   let graph, index, view, selected = null, currentView = 'overview', mapDirty = true, meta = { title: '', example: true };
   let messageTimer, loadVersion = 0, dragDepth = 0;
   let simulation = null, initialState = { variables: {}, issues: [] }, stateLog = [];
@@ -123,6 +123,7 @@ label epilogue:
     if (name === 'map') requestAnimationFrame(drawGutter);
     if (name === 'overview') requestAnimationFrame(() => views.checkOverflow());
     if (name === 'checkpoints') requestAnimationFrame(() => BranchlightProject.fit());
+    if (name === 'play') BranchlightPlay.shown();
   }
   function go(name) {
     if (location.hash.slice(1) !== name) { try { history[location.hash ? 'pushState' : 'replaceState'](null, '', '#' + name); } catch (_) { /* Some file:// contexts refuse history changes; the view still switches. */ } }
@@ -130,17 +131,22 @@ label epilogue:
   }
   window.addEventListener('hashchange', () => showView(location.hash.slice(1)));
   window.addEventListener('popstate', () => showView(location.hash.slice(1)));
-  window.Branchlight = { showView: go };
+  window.Branchlight = { showView: go, visibleGraph: o => visibleGraph(o), get graph() { return graph; }, get index() { return index; }, get initialState() { return initialState; }, kindOf: n => kindOf(n), showNode: id => showNode(id), showVariable: name => showVariable(name) };
 
   // Map
   function makeView() {
+    const { nodes, edges } = visibleGraph({ entry: $('entry').value, sim: simulation, dialogue: $('dialogue').checked || !!simulation, jumps: !!simulation });
+    return layout(nodes, edges, { w: 228, h: 80, gapX: 30, gapY: 74, pad: 30 });
+  }
+  // The nodes worth drawing from an entry label, with hidden steps bridged so their labels stay on the visible connections.
+  function visibleGraph({ entry, sim, dialogue, jumps }) {
     const outgoing = new Map(), mapEdges = [...graph.edges], existing = new Set(mapEdges.map(e => e.from + '>' + e.to));
-    for (const [from, to] of simulation?.traversed || []) { const key = from + '>' + to; if (!existing.has(key)) { mapEdges.push({ from, to, label: 'Simulated route', kind: 'flow' }); existing.add(key); } }
+    for (const [from, to] of sim?.traversed || []) { const key = from + '>' + to; if (!existing.has(key)) { mapEdges.push({ from, to, label: 'Simulated route', kind: 'flow' }); existing.add(key); } }
     for (const e of mapEdges) { if (!outgoing.has(e.from)) outgoing.set(e.from, []); outgoing.get(e.from).push(e); }
-    const reachable = new Set(), queue = $('entry').value ? [$('entry').value] : graph.nodes.map(n => n.id);
-    if (simulation) queue.push(...simulation.trace.map(item => item.id), ...(simulation.pc ? [simulation.pc] : []));
+    const reachable = new Set(), queue = entry ? [entry] : graph.nodes.map(n => n.id);
+    if (sim) queue.push(...sim.trace.map(item => item.id), ...(sim.pc ? [sim.pc] : []));
     while (queue.length) { const id = queue.pop(); if (reachable.has(id)) continue; reachable.add(id); for (const e of outgoing.get(id) || []) queue.push(e.to); }
-    const show = n => reachable.has(n.id) && (n.type !== 'passage' || $('dialogue').checked || simulation) && (n.type !== 'jump' || n.dynamic || simulation);
+    const show = n => reachable.has(n.id) && (n.type !== 'passage' || dialogue) && (n.type !== 'jump' || n.dynamic || jumps);
     const nodes = graph.nodes.filter(show).map(n => ({ ...n })), kept = new Set(nodes.map(n => n.id)), edges = [], dedupe = new Set();
     // Hidden nodes are bridged so their labels and kinds still appear on the visible connection.
     for (const n of nodes) for (const first of outgoing.get(n.id) || []) {
@@ -151,7 +157,7 @@ label epilogue:
         else if (!seen.has(e.to)) { seen.add(e.to); for (const after of outgoing.get(e.to) || []) q.push({ ...after, path: [...e.path, [after.from, after.to]], label: [e.label, after.label].filter(Boolean).join(' · '), kind: e.kind === 'flow' ? after.kind : e.kind }); }
       }
     }
-    return layout(nodes, edges, { w: 228, h: 80, gapX: 30, gapY: 74, pad: 30 });
+    return { nodes, edges };
   }
   function wrap(text, max = 28, count = 2) {
     const words = text.replace(/\s+/g, ' ').trim().split(' '), lines = []; let line = '';
@@ -435,6 +441,7 @@ label epilogue:
     initialState = RpySimulator.initialize(graph); simulation = null; stateLog = [];
     $('variables').value = variableText(initialState.variables); $('simulation-error').hidden = true; refreshSimulation(false);
     views.load(index, meta);
+    BranchlightPlay.load();
     $('import-message').hidden = true; mapDirty = true;
     if (navigate) go('overview');
   }

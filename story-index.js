@@ -107,7 +107,7 @@
         const decl = !inPython && text.match(/^(default|define)\s+(?:-?\d+\s+)?([A-Za-z_][\w.]*)\s*=\s*([\s\S]+)$/);
         if (decl) {
           const [, how, name, value] = decl;
-          if (/^Character\s*\(/.test(value.trim())) { characters.push({ name, display: value.match(/Character\s*\(\s*[rRuU]?(["'])(.*?)\1/)?.[2] || name, file: f.name, line: s.line }); continue; }
+          if (/^Character\s*\(/.test(value.trim())) { characters.push({ name, display: value.match(/Character\s*\(\s*[rRuU]?(["'])(.*?)\1/)?.[2] || name, color: value.match(/\bcolor\s*=\s*["'](#[0-9a-fA-F]{3,8})["']/)?.[1] || null, file: f.name, line: s.line }); continue; }
           if (engineSpaces.test(name) || (how === 'define' && /^[A-Z]\w*\s*\(/.test(value.trim()))) continue;
           const v = variable(name); v.defs.push({ ...where(), how });
           if (!v.declared) { v.declared = how; v.initial = value.trim(); v.kind = kindOf(value); }

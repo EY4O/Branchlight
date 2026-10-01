@@ -289,25 +289,25 @@
       for (let i = 0; i < 300; i++) { this.internalStep(); if (this.status !== 'ready') return; }
       this.status = 'limit'; this.problem = 'Paused after 300 steps, possibly in a loop. Continue for another batch or edit variables.';
     }
-    choose(id, manual = false) {
+    choose(id, manual = false, run = true) {
       const n = this.nodes.get(this.pc), choice = this.menu().find(c => c.id === id);
       if (n?.type !== 'menu' || !choice) throw new Error('That choice is no longer current.');
       if ((!choice.enabled || n.menuSet || /\b(?:screen|nvl)\s*=/.test(n.statement)) && !manual) throw new Error('This choice needs a manual override.');
-      this.checkpoint(); this.record(n, 'Choose: ' + choice.title, manual); this.move(id); this.run(false);
+      this.checkpoint(); this.record(n, 'Choose: ' + choice.title, manual); this.move(id); if (run) this.run(false);
     }
     setVariables(text) { const variables = edit(text, this.variables); this.checkpoint(); this.variables = variables; this.problem = ''; if (!['ended', 'boundary'].includes(this.status)) this.status = 'ready'; }
-    resolveCondition(yes) {
+    resolveCondition(yes, run = true) {
       const n = this.nodes.get(this.pc); if (n?.type !== 'condition' || this.status !== 'blocked') throw new Error('No unresolved condition is selected.');
       this.checkpoint(); const e = (this.out.get(n.id) || []).find(e => e.label.startsWith(yes ? 'Yes' : 'No'));
-      this.record(n, `Assume ${n.title} → ${yes ? 'True' : 'False'}`, true); this.move(e?.to); this.run(false);
+      this.record(n, `Assume ${n.title} → ${yes ? 'True' : 'False'}`, true); this.move(e?.to); if (run) this.run(false);
     }
-    skip() {
+    skip(run = true) {
       const n = this.nodes.get(this.pc);
       if (this.status !== 'blocked' || !['passage', 'unsupported', 'call'].includes(n?.type)) throw new Error('This step cannot be skipped.');
       this.checkpoint(); this.record(n, 'Manual override: skipped ' + (n.statements?.[this.offset]?.text || n.title), true);
       if (n.type === 'passage' && this.offset + 1 < (n.statements?.length || 1)) { this.offset++; this.status = 'ready'; }
       else this.move(this.next());
-      this.run(false);
+      if (run) this.run(false);
     }
   }
   root.RpySimulator = { evaluate, assign, edit, literal, truth, initialize, Simulation };

@@ -6,8 +6,8 @@
   <meta name="description" content="See the whole shape of your Ren’Py story: branches, variables, and problems, locally in your browser.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f3a2f'/%3E%3Cpath d='M16 26V15M16 15L8.5 7.5M16 15l7.5-7.5M16 20l-4.5-3.5' stroke='%23eef3ea' stroke-width='2.6' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
   <meta name="theme-color" content="#e8ebe4">
-  <script src="theme.js?v=herbarium-17"></script>
-  <link rel="stylesheet" href="style.css?v=herbarium-17">
+  <script src="theme.js?v=herbarium-21"></script>
+  <link rel="stylesheet" href="style.css?v=herbarium-21">
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -47,6 +47,7 @@
     <nav class="tabs" aria-label="Views">
       <a href="#overview" data-view="overview" aria-current="page">Overview</a>
       <a href="#map" data-view="map">Map</a>
+      <a href="#play" data-view="play">Play</a>
       <a href="#variables" data-view="variables">Variables <span class="count" id="tab-variables">0</span></a>
       <a href="#problems" data-view="problems">Problems <span class="count" id="tab-problems">0</span></a>
       <a href="#checkpoints" data-view="checkpoints" id="tab-checkpoints" hidden>Checkpoints</a>
@@ -176,6 +177,32 @@
       </aside>
     </section>
 
+    <!-- Play: read the story line by line, with a minimap of where you are -->
+    <section id="view-play" class="view play-view" aria-label="Play" hidden>
+      <div id="play-canvas" class="pan play-map" tabindex="0" aria-label="Minimap of the story. Drag to pan, scroll to zoom.">
+        <svg id="play-svg" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="Where you are in the story"><defs>
+          <marker id="arrow-p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 1.5L9 5 0 8.5z" class="arrowhead"/></marker>
+          <marker id="arrow-p-route" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 1.5L9 5 0 8.5z" class="arrowhead route"/></marker>
+        </defs><g id="play-viewport"></g></svg>
+      </div>
+      <div class="play-bar">
+        <label class="select-field"><span>From</span><select id="play-entry"></select></label>
+        <button id="play-start" class="button action"><svg class="icon"><use href="#i-play"/></svg><span>Start</span></button>
+        <button id="play-undo" class="button" disabled><svg class="icon"><use href="#i-undo"/></svg>Back</button>
+        <details class="play-values" id="play-values"><summary class="button">Starting values</summary>
+          <div class="play-values-panel"><textarea id="play-variables" spellcheck="false" rows="7" aria-label="Starting values"></textarea><p class="note">One per line, like <code>mira_trust = 2</code>. Press Start to apply.</p></div>
+        </details>
+        <label class="switch"><input type="checkbox" id="play-notes" checked><span class="track" aria-hidden="true"></span>Stage directions</label>
+        <div id="play-state" class="play-state" aria-live="polite"></div>
+      </div>
+      <div id="play-page" class="play-page" tabindex="-1" aria-label="Script. Space continues, number keys choose, Backspace goes back.">
+        <div class="script">
+          <ol id="play-lines" aria-live="polite"></ol>
+          <div id="play-prompt" class="play-prompt"></div>
+        </div>
+      </div>
+    </section>
+
     <!-- Variables: every stat, relationship, and flag -->
     <section id="view-variables" class="view list-view" aria-labelledby="variables-heading" hidden>
       <div class="sheet list-sheet">
@@ -244,6 +271,6 @@
   </main>
 
   <div id="drop-overlay" hidden><div><svg class="icon big"><use href="#i-open"/></svg><strong>Drop your .rpy files or one project bundle</strong><span>Read in this browser. Nothing is uploaded.</span></div></div>
-  <script src="parser.js?v=herbarium-17"></script><script src="simulator.js?v=herbarium-17"></script><script src="story-index.js?v=herbarium-17"></script><script src="project-bundle.js?v=herbarium-17"></script><script src="pan-zoom.js?v=herbarium-17"></script><script src="project-view.js?v=herbarium-17"></script><script src="views.js?v=herbarium-17"></script><script src="app.js?v=herbarium-17"></script>
+  <script src="parser.js?v=herbarium-21"></script><script src="simulator.js?v=herbarium-21"></script><script src="story-index.js?v=herbarium-21"></script><script src="project-bundle.js?v=herbarium-21"></script><script src="pan-zoom.js?v=herbarium-21"></script><script src="project-view.js?v=herbarium-21"></script><script src="views.js?v=herbarium-21"></script><script src="play.js?v=herbarium-21"></script><script src="app.js?v=herbarium-21"></script>
 </body>
 </html>

@@ -284,6 +284,12 @@ Nodes are rag-sheet rectangles with a folder tab, a kind line in 600 11px, a tit
 ### Simulator and State Table
 The drawer offers only the next decision: choice buttons framed in Action Green with a green bullet and the condition in monospace beneath. The followed route is lit as a 3px green edge; off-route nodes recede by colour (shade fill, faint text), not opacity. The state table is a fixed-column grid, one column per choice, values in right-aligned tabular monospace; cells that changed turn ink, 600, on Action Wash.
 
+### Requirements ("To reach this")
+Inspector section listing what every route from start needs. Condition rows sit on amber wash with an amber-line border (`Needs` + the condition in the code face); each one lists the changes to its variables as small chips (bold mono delta, then the choice in quotes). Choice rows are plain sheet rows (`Choose` + the caption). Ways in are bordered rows: the source in sans, the extra conditions beneath in amber mono, or "nothing extra" in faint sans.
+
+### Play Script Page
+The Play tab splits horizontally: a minimap on the ground (structure only, no dialogue; the route lit in action green, camera following the current node) over a ground-2 control bar and a single centred sheet set as a screenplay in Courier Prime. Label entries are uppercase scene headings; speakers are uppercase names indented about a third in, with a small folder-tab mark in the character's own `color` when the script defines one; dialogue is indented beneath; narration runs full width; stage directions are parentheticals in faint ink and code lines use the code face. Picks are bold action green with an arrow. Earlier lines fade to faint ink so the newest line reads first. Choices below a dashed rule are numbered action-green buttons; locked choices are dashed and faint, with what they need in amber code and a "Choose anyway" link. The control bar's variable chips show only what this playthrough changed, and the last change wears action wash.
+
 ### Camera Glide (signature interaction)
 Drilling in from Overview, Variables, or Problems eases the map camera to the exact node over 460ms with an exponential ease-out (`1 - 2^(-10t)`), interpolating zoom in log space so it feels even. Under reduced motion it jumps instantly. Drawers enter with a 0.22s `cubic-bezier(.16, 1, .3, 1)` slide of 16px (24px upward as a bottom tray).
 
